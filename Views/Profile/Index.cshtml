@@ -1,0 +1,113 @@
+﻿@model ApplicationUser
+
+
+<div class="row g-4">
+
+
+    <!-- PROFILE SECTION -->
+    <div class="col-lg-4">
+
+
+        <div class="card rounded-4 shadow-sm">
+
+
+            <div class="card-body text-center">
+
+
+                <!-- Profile Image -->
+
+                <img src="@(
+                     string.IsNullOrEmpty(Model.ProfileImage)
+                     ? "/images/default-profile.png"
+                     : Model.ProfileImage
+                 )"
+                     width="120"
+                     height="120"
+                     class="rounded-circle mb-3"
+                     style="object-fit:cover;">
+
+
+                <!-- Upload Button -->
+
+                <form asp-action="UploadProfileImage"
+                      asp-controller="Profile"
+                      method="post"
+                      enctype="multipart/form-data">
+
+
+                    <label class="btn btn-outline-primary btn-sm">
+
+
+                        <i class="bi bi-camera me-1"></i>
+
+                        Change Photo
+
+
+                        <input type="file"
+                               name="image"
+                               hidden
+                               accept="image/*"
+                               onchange="this.form.submit()">
+
+
+                    </label>
+
+
+                </form>
+
+
+                <h3 class="fw-bold mt-3"> @Model.FullName
+                </h3>
+
+                <p class="text-muted"> @Model.Bio </p>
+
+
+
+                <hr>
+
+
+
+                <div class="text-start">
+
+
+                    <p>
+
+                        <i class="bi bi-envelope me-2"></i>
+
+                        @Model.Email
+
+                    </p>
+
+
+
+                    <p>
+
+                        <i class="bi bi-calendar me-2"></i>
+
+                        Joined @Model.JoinDate.ToString("MMMM yyyy")
+
+                    </p>
+
+                </div>
+
+
+                <button class="btn btn-primary w-100 mt-2">
+
+                    Edit Profile
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+</div>

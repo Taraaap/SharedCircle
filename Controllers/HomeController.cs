@@ -16,5 +16,11 @@ namespace SharedCircle.Controllers
 
             return View();
         }
+
+        [Authorize]
+        public IActionResult Feed()
+        {
+            return View();
+        }
     }
 }

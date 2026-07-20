@@ -5,7 +5,8 @@ namespace SharedCircle.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        //[Required(ErrorMessage = "Full name is required")]
+        
+        [Required(ErrorMessage = "Full name is required")]
         [RegularExpression(@"^[a-zA-Z\s]+$",
             ErrorMessage = "Full name can only contain letters and spaces")]
         public string? FullName { get; set; }

@@ -71,32 +71,35 @@ public class RegisterModel : PageModel
     /// </summary>
     public class InputModel
     {
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        
+
+        [Required(ErrorMessage = "Full name is required")]
+        [Display(Name = "Full Name")]
+        [RegularExpression(@"^[a-zA-Z\s]+$",
+        ErrorMessage = "Full name can only contain letters and spaces")]
+        public string FullName { get; set; } = default!;
+
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = default!;
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+
+
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100,
+        ErrorMessage = "Password must be between {2} and {1} characters",
+        MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = default!;
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+
+
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("Password",
+        ErrorMessage = "Passwords do not match")]
         public string? ConfirmPassword { get; set; }
     }
 
@@ -113,10 +116,22 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
+
             var user = CreateUser();
 
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+            // Save custom profile information
+            user.FullName = Input.FullName;
+
+            user.Bio = "New SharedCircle member";
+
+            user.ProfileImage = "/images/default-profile.png";
+
+            user.JoinDate = DateTime.Now;
+
+
+            await _userStore.SetUserNameAsync( user,  Input.Email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email,CancellationToken.None);
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)
@@ -142,7 +157,7 @@ public class RegisterModel : PageModel
                 else
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    return RedirectToPage("Login");
                 }
             }
             foreach (var error in result.Errors)
