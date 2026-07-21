@@ -10,5 +10,6 @@ namespace SharedCircle.Data
         {
 
         }
+        public DbSet<UserPost> UserPosts { get; set; }
     }
 }

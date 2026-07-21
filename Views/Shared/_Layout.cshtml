@@ -8,8 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>
-        @ViewData["Title"] - SharedCircle
+        @ViewData["Title"]  SharedCircle
     </title>
+        <link rel="icon" type="image/png" href="~/image/logo.png" asp-append-version="true" />
+   
 
 
     <link rel="icon" href="~/images/logo.png">
@@ -38,6 +40,7 @@
 
         <partial name="_Navbar" />
 
+        <partial name="_Notification" />
 
         <div class="container-fluid mt-4">
 
@@ -49,7 +52,6 @@
                     <partial name="_Sidebar" />
 
                 </div>
-
 
 
                 <div class="col-lg-10">

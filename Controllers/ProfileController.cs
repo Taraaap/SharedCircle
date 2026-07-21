@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedCircle.Models;
 using SharedCircle.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using SharedCircle.Data;
+
 namespace SharedCircle.Controllers
 {
 
@@ -12,17 +15,17 @@ namespace SharedCircle.Controllers
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
-
+        private readonly ApplicationDbContext _db;
 
 
         public ProfileController(
             UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _userManager = userManager;
             _environment = environment;
+            _db = db;
         }
-
 
 
         public async Task<IActionResult> Index()
@@ -34,9 +37,18 @@ namespace SharedCircle.Controllers
                 return NotFound();
             }
 
-            return View(user);
-        }
+            ProfileVM vm = new ProfileVM
+            {
+                User = user,
+                Posts = await _db.UserPosts
+                    .Where(x => x.UserId == user.Id)
+                    .Include(x => x.User)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToListAsync()
+            };
 
+            return View(vm);
+        }
 
         [HttpPost]
         public async Task<IActionResult> UploadProfileImage(IFormFile image)
@@ -48,9 +60,7 @@ namespace SharedCircle.Controllers
                     return RedirectToAction("Index");
                 }
 
-
                 var user = await _userManager.GetUserAsync(User);
-
 
                 if (user == null)
                 {
@@ -59,11 +69,7 @@ namespace SharedCircle.Controllers
 
 
 
-                string folder = Path.Combine(
-                    _environment.WebRootPath,
-                    "images",
-                    "profile"
-                );
+                string folder = Path.Combine(  _environment.WebRootPath,"images", "profile" );
 
 
                 if (!Directory.Exists(folder))
@@ -73,14 +79,8 @@ namespace SharedCircle.Controllers
 
 
 
-                string fileName =
-                    Guid.NewGuid().ToString()
-                    + Path.GetExtension(image.FileName);
-
-
-
-                string filePath =
-                    Path.Combine(folder, fileName);
+                string fileName =  Guid.NewGuid().ToString()+ Path.GetExtension(image.FileName);
+                string filePath = Path.Combine(folder, fileName);
 
 
 
@@ -90,20 +90,15 @@ namespace SharedCircle.Controllers
                 }
 
 
-
                 user.ProfileImage = "/images/profile/" + fileName;
-
-
                 var result = await _userManager.UpdateAsync(user);
 
 
                 if (!result.Succeeded)
                 {
-                    throw new Exception(
-                        string.Join(",", result.Errors.Select(e => e.Description))
+                    throw new Exception( string.Join(",", result.Errors.Select(e => e.Description))
                     );
                 }
-
 
 
                 return RedirectToAction("Index");
@@ -163,5 +158,6 @@ namespace SharedCircle.Controllers
 
             return RedirectToAction("Index");
         }
+       
     }
 }

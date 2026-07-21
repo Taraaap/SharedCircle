@@ -1,5 +1,4 @@
-﻿@model ApplicationUser
-
+﻿@model ProfileVM
 
 <div class="row g-4">
 
@@ -16,7 +15,7 @@
 
                
 
-                <img src="@(string.IsNullOrEmpty(Model.ProfileImage)? "/images/default-profile.png" : Model.ProfileImage  )"
+                <img src="@(string.IsNullOrEmpty(Model.User.ProfileImage)? "/images/default-profile.png" : Model.User.ProfileImage  )"
                      width="120"height="120"class="rounded-circle mb-3"style="object-fit:cover;">
 
 
@@ -42,10 +41,10 @@
                 </form>
 
 
-                <h3 class="fw-bold mt-3"> @Model.FullName
+                <h3 class="fw-bold mt-3"> @Model.User.FullName
                 </h3>
 
-                <p class="text-muted"> @Model.Bio </p>
+                <p class="text-muted"> @Model.User.Bio </p>
 
                 <hr>
 
@@ -56,7 +55,7 @@
 
                         <i class="bi bi-envelope me-2"></i>
 
-                        @Model.Email
+                        @Model.User.Email
 
                     </p>
 
@@ -66,7 +65,7 @@
 
                         <i class="bi bi-calendar me-2"></i>
 
-                        Joined @Model.JoinDate.ToString("MMMM yyyy")
+                        Joined @Model.User.JoinDate.ToString("MMMM yyyy")
 
                     </p>
 
@@ -95,5 +94,96 @@
 
 
 
+
+<div class="col-lg-8">
+
+    <h4 class="mb-3">My Posts</h4>
+
+    @foreach (var post in Model.Posts)
+    {
+        <div class="card shadow-sm rounded-4 mb-4">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div class="d-flex">
+
+                        <img src="@(string.IsNullOrEmpty(Model.User.ProfileImage) ? "/images/default-profile.png": Model.User.ProfileImage)"
+                             width="45" height="45" class="rounded-circle me-3" style="object-fit:cover;" />
+
+                        <div>
+                            <h6 class="mb-0">@Model.User.FullName</h6>
+                            <small class="text-muted">
+                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <!-- Three-dot menu -->
+                    <div class="dropdown">
+
+                        <button class="btn btn-light btn-sm"
+                                data-bs-toggle="dropdown">
+
+                            <i class="bi bi-three-dots"></i>
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+
+                                <form asp-controller="Posts"asp-action="Delete" method="post">
+
+                                    <input type="hidden" name="id"value="@post.Id" />
+
+                                    <button class="dropdown-item text-danger">
+
+                                        <i class="bi bi-trash"></i>
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                <p class="mt-3">@post.Caption</p>
+
+                @if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    <img src="@post.ImageUrl"
+                         class="img-fluid rounded-3 w-100 mb-3" />
+                }
+
+                <div class="d-flex border-top pt-2">
+
+                    <button class="btn btn-light flex-fill">
+                        <i class="bi bi-heart"></i> Like
+                    </button>
+
+                    <button class="btn btn-light flex-fill">
+                        <i class="bi bi-chat"></i> Comment
+                    </button>
+
+                    <button class="btn btn-light flex-fill">
+                        <i class="bi bi-share"></i> Share
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
 
 </div>

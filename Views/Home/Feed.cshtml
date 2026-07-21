@@ -1,6 +1,9 @@
-﻿@{
+﻿@model SharedCircle.ViewModels.FeedVM
+
+@{
     ViewData["Title"] = "Feed";
 }
+
 @using Microsoft.AspNetCore.Identity
 @using SharedCircle.Models
 @inject UserManager<ApplicationUser> UserManager
@@ -28,9 +31,9 @@
                     <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)
                             ? "/images/default-profile.png"
                             : currentUser.ProfileImage)"
-                         width="55"
-                         height="55"
-                         class="rounded-circle"
+                         width="50"
+                         height="50"
+                         class="rounded-circle me-3"
                          style="object-fit:cover;">
 
 
@@ -78,7 +81,12 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
 
 
-                <div class="modal-content rounded-4">
+                <form asp-controller="Posts"
+      asp-action="Create"
+      method="post"
+      enctype="multipart/form-data">
+
+    <div class="modal-content rounded-4">
 
 
                     <div class="modal-header">
@@ -91,7 +99,7 @@
                         <button class="btn-close"
                                 data-bs-dismiss="modal">
                         </button>
-
+                     
 
                     </div>
 
@@ -103,16 +111,18 @@
                         <div class="d-flex align-items-center mb-3">
 
 
-                            <img src="~/images/default-profile.png"
-                                 width="50"
-                                 height="50"
-                                 class="rounded-circle me-3">
-
+                                <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)
+                                                            ? "/images/default-profile.png"
+                                                            : currentUser.ProfileImage)"
+                                     width="50"
+                                     height="50"
+                                     class="rounded-circle me-3"
+                                     style="object-fit:cover;">
 
                             <div>
 
                                 <h6 class="mb-0">
-                                    @User.Identity.Name
+                                        @currentUser?.FullName 
                                 </h6>
 
 
@@ -128,9 +138,10 @@
 
 
 
-                        <textarea class="form-control border-0 shadow-none"
-                                  rows="5"
-                                  placeholder="What's on your mind?"></textarea>
+                            <textarea asp-for="NewPost.Caption"
+                                      class="form-control border-0 shadow-none"
+                                      rows="5"
+                                      placeholder="What's on your mind?"></textarea>
 
 
 
@@ -145,7 +156,7 @@
                     <div class="modal-footer justify-content-between">
 
 
-                        <label class="btn btn-light">
+                        <label for="imageUpload" class="btn btn-light">
 
                             <i class="bi bi-image-fill text-success me-2"></i>
 
@@ -154,16 +165,16 @@
                         </label>
 
 
-                        <input type="file"
+                        <input asp-for="NewPost.Image"
+                               type="file"
                                id="imageUpload"
-                               hidden>
+                               hidden
+                               accept="image/*">
 
 
-
-                        <button class="btn btn-primary px-5">
-
+                        <button type="submit"
+                                class="btn btn-primary px-5">
                             Post
-
                         </button>
 
 
@@ -171,7 +182,7 @@
 
 
                 </div>
-
+                </form>
 
             </div>
 
@@ -182,34 +193,76 @@
 
 
         <!-- POST CARD -->
+        @foreach (var post in Model.Posts)
+        {
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+                <div class="card-body">
 
 
-        <div class="card shadow-sm border-0 rounded-4">
+                    <div class="d-flex align-items-center mb-3">
 
 
-            <div class="card-body">
+                        <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)
+                                        ? "/images/default-profile.png"
+                                        : post.User.ProfileImage)"
+                             width="45"
+                             height="45"
+                             class="rounded-circle me-3"
+                             style="object-fit:cover;">
 
 
-                <div class="d-flex align-items-center mb-3">
+                        <div>
+
+                            <h6 class="mb-0">
+                                @post.User.FullName
+                            </h6>
 
 
-                    <img src="~/images/default-profile.png"
-                         width="45"
-                         height="45"
-                         class="rounded-circle me-3">
+                            <small class="text-muted">
+                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                            </small>
+
+                        </div>
+
+
+                    </div>
 
 
 
-                    <div>
-
-                        <h6 class="mb-0">
-                            John Doe
-                        </h6>
+                    <p>
+                        @post.Caption
+                    </p>
 
 
-                        <small class="text-muted">
-                            2 hours ago
-                        </small>
+
+                    @if (post.ImageUrl != null)
+                    {
+                        <img src="@post.ImageUrl"
+                             class="img-fluid rounded-3 w-100 mb-3">
+                    }
+
+
+
+                    <div class="d-flex border-top pt-2">
+
+                        <button class="btn btn-light flex-fill">
+                            <i class="bi bi-heart"></i>
+                            Like
+                        </button>
+
+
+                        <button class="btn btn-light flex-fill">
+                            <i class="bi bi-chat"></i>
+                            Comment
+                        </button>
+
+
+                        <button class="btn btn-light flex-fill">
+                            <i class="bi bi-share"></i>
+                            Share
+                        </button>
 
 
                     </div>
@@ -217,56 +270,9 @@
 
                 </div>
 
-
-
-                <p>
-                    Welcome to SharedCircle 🚀
-                </p>
-
-
-
-                <img src="https://picsum.photos/700/400"
-                     class="img-fluid rounded-3 w-100 mb-3">
-
-
-
-                <div class="d-flex border-top pt-2">
-
-
-                    <button class="btn btn-light flex-fill me-2">
-
-                        <i class="bi bi-heart"></i>
-                        Like
-
-                    </button>
-
-
-
-                    <button class="btn btn-light flex-fill me-2">
-
-                        <i class="bi bi-chat"></i>
-                        Comment
-
-                    </button>
-
-
-
-                    <button class="btn btn-light flex-fill">
-
-                        <i class="bi bi-share"></i>
-                        Share
-
-                    </button>
-
-
-                </div>
-
-
-
             </div>
 
-
-        </div>
+        }
 
 
     </div>
