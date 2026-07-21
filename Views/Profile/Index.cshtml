@@ -115,7 +115,7 @@
                         <div>
                             <h6 class="mb-0">@Model.User.FullName</h6>
                             <small class="text-muted">
-                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                                    @post.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")
                             </small>
                         </div>
 
@@ -167,9 +167,11 @@
 
                 <div class="d-flex border-top pt-2">
 
-                    <button class="btn btn-light flex-fill">
-                        <i class="bi bi-heart"></i> Like
-                    </button>
+                   <button class="btn btn-light flex-fill like-btn"
+                                data-post-id="@post.Id">
+                           <span class="like-count">@post.LikeCount</span>
+                           Like
+                        </button>
 
                     <button class="btn btn-light flex-fill">
                         <i class="bi bi-chat"></i> Comment
@@ -187,3 +189,5 @@
     }
 
 </div>
+
+

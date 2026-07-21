@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SharedCircle.Data;
 using SharedCircle.Models;
 using SharedCircle.ViewModels;
@@ -150,6 +151,44 @@ namespace SharedCircle.Controllers
             TempData["success"] = "Post deleted successfully.";
 
             return RedirectToAction("Index", "Profile");
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleLike(int postId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var like = await _db.Likes  .FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == user.Id);
+
+            var post = await _db.UserPosts.FindAsync(postId);
+
+            if (like == null)
+            {
+                _db.Likes.Add(new Like
+                {
+                    PostId = postId,
+                    UserId = user.Id
+                });
+
+                post.LikeCount++;
+            }
+            else
+            {
+                _db.Likes.Remove(like);
+                if (post.LikeCount > 0)
+                {
+                    post.LikeCount--;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            return Ok(new
+            {
+                likes = post.LikeCount
+            });
         }
     }
 

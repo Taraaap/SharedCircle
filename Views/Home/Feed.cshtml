@@ -221,7 +221,7 @@
 
 
                             <small class="text-muted">
-                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                                @post.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")
                             </small>
 
                         </div>
@@ -247,9 +247,10 @@
 
                     <div class="d-flex border-top pt-2">
 
-                        <button class="btn btn-light flex-fill">
-                            <i class="bi bi-heart"></i>
-                            Like
+                        <button class="btn btn-light flex-fill like-btn"
+                                data-post-id="@post.Id">
+                           <span class="like-count">@post.LikeCount</span>
+                           Like
                         </button>
 
 
@@ -402,44 +403,21 @@
 
 
 @section Scripts {
-
-
     <script>
-
-
         const upload = document.getElementById("imageUpload");
 
-
-        upload.addEventListener("change", function() {
-
-
+        upload?.addEventListener("change", function () {
             if (this.files.length > 0) {
-
-
                 const reader = new FileReader();
 
-
-                reader.onload = function(e) {
-
+                reader.onload = function (e) {
                     let img = document.getElementById("previewImage");
-
                     img.src = e.target.result;
-
                     img.classList.remove("d-none");
-
-                }
-
+                };
 
                 reader.readAsDataURL(this.files[0]);
-
-
             }
-
-
         });
-
-
     </script>
-
-
 }
