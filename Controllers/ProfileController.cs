@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedCircle.Models;
-
+using SharedCircle.ViewModels;
 namespace SharedCircle.Controllers
 {
 
@@ -118,5 +118,50 @@ namespace SharedCircle.Controllers
         }
 
 
+        public async Task<IActionResult> Edit()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            EditProfileVM model = new EditProfileVM
+            {
+                FullName = user.FullName,
+                Bio = user.Bio,
+                Address = user.Address,
+                DateOfBirth = user.DateOfBirth
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditProfileVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.FullName = model.FullName;
+            user.Bio = model.Bio;
+            user.Address = model.Address;
+            user.DateOfBirth = model.DateOfBirth;
+
+            await _userManager.UpdateAsync(user);
+
+            TempData["success"] = "Profile updated successfully.";
+
+            return RedirectToAction("Index");
+        }
     }
 }

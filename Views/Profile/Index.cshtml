@@ -14,25 +14,15 @@
             <div class="card-body text-center">
 
 
-                <!-- Profile Image -->
+               
 
-                <img src="@(
-                     string.IsNullOrEmpty(Model.ProfileImage)
-                     ? "/images/default-profile.png"
-                     : Model.ProfileImage
-                 )"
-                     width="120"
-                     height="120"
-                     class="rounded-circle mb-3"
-                     style="object-fit:cover;">
+                <img src="@(string.IsNullOrEmpty(Model.ProfileImage)? "/images/default-profile.png" : Model.ProfileImage  )"
+                     width="120"height="120"class="rounded-circle mb-3"style="object-fit:cover;">
 
 
                 <!-- Upload Button -->
 
-                <form asp-action="UploadProfileImage"
-                      asp-controller="Profile"
-                      method="post"
-                      enctype="multipart/form-data">
+                <form asp-action="UploadProfileImage" asp-controller="Profile" method="post"enctype="multipart/form-data">
 
 
                     <label class="btn btn-outline-primary btn-sm">
@@ -43,11 +33,7 @@
                         Change Photo
 
 
-                        <input type="file"
-                               name="image"
-                               hidden
-                               accept="image/*"
-                               onchange="this.form.submit()">
+                        <input type="file" name="image" hidden accept="image/*" onchange="this.form.submit()">
 
 
                     </label>
@@ -61,11 +47,7 @@
 
                 <p class="text-muted"> @Model.Bio </p>
 
-
-
                 <hr>
-
-
 
                 <div class="text-start">
 
@@ -93,7 +75,11 @@
 
                 <button class="btn btn-primary w-100 mt-2">
 
-                    Edit Profile
+                    <a asp-controller="Profile"
+                       asp-action="Edit"
+                       class="btn btn-primary w-100 mt-2">
+                        Edit Profile
+                    </a>
 
                 </button>
 
