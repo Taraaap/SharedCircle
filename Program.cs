@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedCircle.Data;
+using SharedCircle.Hubs;
 using SharedCircle.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
 });
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -54,10 +56,12 @@ app.UseRouting();
 app.UseAuthentication();  
 app.UseAuthorization();
 
+app.MapHub<CommentHub>("/commentHub");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Feed}/{id?}");
+
 
 
 app.MapRazorPages();

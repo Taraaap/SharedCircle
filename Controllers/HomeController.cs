@@ -32,9 +32,10 @@ namespace SharedCircle.Controllers
         public async Task<IActionResult> Feed()
         {
             FeedVM vm = new FeedVM();
-
             vm.Posts = await _db.UserPosts
                 .Include(p => p.User)
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 

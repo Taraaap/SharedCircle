@@ -12,5 +12,6 @@ namespace SharedCircle.Data
         }
         public DbSet<UserPost> UserPosts { get; set; }
         public DbSet<Like> Likes { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

@@ -2,25 +2,20 @@
 
 namespace SharedCircle.Models
 {
-    public class UserPost
+    public class Comment
     {
         public int Id { get; set; }
 
         [Required]
-        public string? Caption { get; set; }
-
-        public string? ImageUrl { get; set; }
+        public string Text { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public int LikeCount { get; set; }
-
-        public int CommentCount { get; set; }
+       
+        public int PostId { get; set; }
+        public UserPost Post { get; set; }
 
         public string UserId { get; set; }
-
         public ApplicationUser User { get; set; }
-
-        public List<Comment> Comments { get; set; } = new();
     }
 }
