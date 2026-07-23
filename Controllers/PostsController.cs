@@ -160,9 +160,12 @@ namespace SharedCircle.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var like = await _db.Likes  .FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == user.Id);
+            var like = await _db.Likes
+                .FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == user.Id);
 
             var post = await _db.UserPosts.FindAsync(postId);
+
+            bool isLiked;
 
             if (like == null)
             {
@@ -173,21 +176,26 @@ namespace SharedCircle.Controllers
                 });
 
                 post.LikeCount++;
+                isLiked = true;
             }
             else
             {
                 _db.Likes.Remove(like);
+
                 if (post.LikeCount > 0)
                 {
                     post.LikeCount--;
                 }
+
+                isLiked = false;
             }
 
             await _db.SaveChangesAsync();
 
             return Ok(new
             {
-                likes = post.LikeCount
+                likes = post.LikeCount,
+                isLiked = isLiked
             });
         }
     }

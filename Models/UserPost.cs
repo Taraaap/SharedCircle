@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SharedCircle.Models
 {
@@ -22,5 +23,7 @@ namespace SharedCircle.Models
         public ApplicationUser User { get; set; }
 
         public List<Comment> Comments { get; set; } = new();
+        [NotMapped]
+        public bool IsLiked { get; set; }
     }
 }

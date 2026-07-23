@@ -43,7 +43,7 @@
                          style="cursor:pointer">
 
 
-                        What's on your mind,   @currentUser?.FullName ?
+                        How was your day, @currentUser?.FullName? 
 
 
                     </div>
@@ -252,21 +252,15 @@
 
                     <div class="d-flex border-top pt-2">
 
+                        <button class="btn btn-light flex-fill like-btn" data-post-id="@post.Id">
+                            <i class="bi @(post.IsLiked ? "bi-heart-fill text-danger" : "bi-heart")"></i>
 
-                        <button class="btn btn-light flex-fill like-btn"
-                                data-post-id="@post.Id">
-
-
-                            <i class="bi bi-heart"></i>
-
-                            <span class="like-count">
+                            <span class="like-count @(post.LikeCount == 0 ? "d-none" : "")">
                                 @post.LikeCount
                             </span>
 
-                            Like
-
+                            Likes
                         </button>
-
 
 
                         @*  COMMENT BUTTON  *@

@@ -67,14 +67,30 @@ document.querySelectorAll(".like-btn").forEach(btn => {
             .then(r => r.json())
             .then(data => {
 
-                this.querySelector(".like-count").innerText = data.likes;
+                let count = this.querySelector(".like-count");
 
+                count.innerText = data.likes;
+
+                if (data.likes == 0) {
+                    count.classList.add("d-none");
+                } else {
+                    count.classList.remove("d-none");
+                }
+
+                let icon = this.querySelector("i");
+
+                if (data.isLiked) {
+                    icon.classList.remove("bi-heart");
+                    icon.classList.add("bi-heart-fill", "text-danger");
+                } else {
+                    icon.classList.remove("bi-heart-fill", "text-danger");
+                    icon.classList.add("bi-heart");
+                }
             });
 
     });
 
 });
-
 
 // Comment
 document.querySelectorAll(".comment-btn").forEach(btn => {
