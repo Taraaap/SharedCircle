@@ -4,9 +4,9 @@
 
     <div class="d-flex flex-column">
 
-        <a href="#" class="d-flex align-items-center text-decoration-none text-dark px-3 py-2 rounded mb-1">
-            <i class="bi bi-house fs-5 me-3"></i>
-            <span>Home</span>
+          <a asp-controller="Home" asp-action="Feed" class="d-flex align-items-center text-decoration-none text-dark px-3 py-2 rounded mb-1">
+        <i class="bi bi-house fs-5 me-3"></i>
+        <span>Home</span>
         </a>
 
         <a href="#" class="d-flex align-items-center text-decoration-none text-dark px-3 py-2 rounded mb-1">
@@ -28,12 +28,9 @@
             <span>Settings</span>
         </a>
 
-        <form asp-area="Identity"
-              asp-page="/Account/Logout"
-              method="post">
+        <form asp-area="Identity"   asp-page="/Account/Logout"   method="post">
 
-            <button type="submit"
-                    class="d-flex align-items-center text-decoration-none text-dark px-3 py-2 rounded border-0 bg-transparent w-100 text-start">
+            <button type="submit"  class="d-flex align-items-center text-decoration-none text-dark px-3 py-2 rounded border-0 bg-transparent w-100 text-start">
 
                 <i class="bi bi-box-arrow-right fs-5 me-3"></i>
                 <span>Logout</span>
