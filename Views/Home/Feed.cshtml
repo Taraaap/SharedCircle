@@ -11,14 +11,9 @@
     var currentUser = await UserManager.GetUserAsync(User);
 }
 
-<div class="row g-4">
 
 
-    <!-- MAIN FEED -->
-    <div class="col-lg-8">
-
-
-        <!-- CREATE POST BOX -->
+@* create post  *@
         <div class="card shadow-sm border-0 rounded-4 mb-4">
 
 
@@ -71,7 +66,7 @@
 
 
 
-        <!-- CREATE POST MODAL -->
+       @* post model *@
 
 
         <div class="modal fade"
@@ -111,42 +106,21 @@
                         <div class="d-flex align-items-center mb-3">
 
 
-                                <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)
-                                                            ? "/images/default-profile.png"
-                                                            : currentUser.ProfileImage)"
-                                     width="50"
-                                     height="50"
-                                     class="rounded-circle me-3"
-                                     style="object-fit:cover;">
+                                <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)       ? "/images/default-profile.png" : currentUser.ProfileImage)"
+                                     width="50"  height="50" class="rounded-circle me-3"   style="object-fit:cover;">
 
                             <div>
-
-                                <h6 class="mb-0">
-                                        @currentUser?.FullName 
-                                </h6>
-
-
-                                <small class="text-muted">
-                                    Public
-                                </small>
-
-
+                                <h6 class="mb-0">  @currentUser?.FullName     </h6>
+                                <small class="text-muted">  Public </small>
                             </div>
-
-
                         </div>
 
 
 
-                            <textarea asp-for="NewPost.Caption"
-                                      class="form-control border-0 shadow-none"
-                                      rows="5"
-                                      placeholder="What's on your mind?"></textarea>
+                            <textarea asp-for="NewPost.Caption" class="form-control border-0 shadow-none"  rows="5" placeholder="What's on your mind?"></textarea>
 
 
-
-                        <img id="previewImage"
-                             class="img-fluid rounded mt-3 d-none">
+                        <img id="previewImage" class="img-fluid rounded mt-3 d-none">
 
                     </div>
 
@@ -154,26 +128,17 @@
 
 
                     <div class="modal-footer justify-content-between">
-
-
-                        <label for="imageUpload" class="btn btn-light">
-
-                            <i class="bi bi-image-fill text-success me-2"></i>
+                        <label for="imageUpload" class="btn btn-light"> <i class="bi bi-image-fill text-success me-2"></i>
 
                             Photo
 
                         </label>
 
 
-                        <input asp-for="NewPost.Image"
-                               type="file"
-                               id="imageUpload"
-                               hidden
-                               accept="image/*">
+                        <input asp-for="NewPost.Image"   type="file"  id="imageUpload"  hidden accept="image/*">
 
 
-                        <button type="submit"
-                                class="btn btn-primary px-5">
+                        <button type="submit"   class="btn btn-primary px-5">
                             Post
                         </button>
 
@@ -192,7 +157,7 @@
 
 
 
-        <!-- POST CARD -->
+        @* post card *@
         @foreach (var post in Model.Posts)
         {
 
@@ -201,49 +166,31 @@
                 <div class="card-body">
 
 
-                    <!-- POST HEADER -->
+                    @* post header *@
 
                     <div class="d-flex align-items-center mb-3">
 
-                        <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)
-                                            ? "/images/default-profile.png"
-                                            : post.User.ProfileImage)"
-                             width="45"
-                             height="45"
-                             class="rounded-circle me-3"
-                             style="object-fit:cover;">
-
-
+                        <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)  ? "/images/default-profile.png"  : post.User.ProfileImage)"
+                             width="45" height="45"  class="rounded-circle me-3"  style="object-fit:cover;">
                         <div>
 
-                            <h6 class="mb-0">
-                                @post.User.FullName
+                            <h6 class="mb-0">  @post.User.FullName
                             </h6>
 
-                            <small class="text-muted">
-                                @TimeHelper.GetTimeAgo(post.CreatedAt)
+                            <small class="text-muted">   @TimeHelper.GetTimeAgo(post.CreatedAt)
                             </small>
 
                         </div>
-
-
                     </div>
 
 
 
-                    
-
-                    <p>
-                        @post.Caption
-                    </p>
+                    <p>   @post.Caption  </p>
 
 
-
-                   
                     @if (!string.IsNullOrEmpty(post.ImageUrl))
                     {
-                        <img src="@post.ImageUrl"
-                             class="img-fluid rounded-3 w-100 mb-3">
+                        <img src="@post.ImageUrl"class="img-fluid rounded-3 w-100 mb-3">
                     }
 
 
@@ -265,17 +212,13 @@
 
                         @*  COMMENT BUTTON  *@
 
-                        <button class="btn btn-light flex-fill"
-                                data-bs-toggle="modal"
-                                data-bs-target="#commentModal-@post.Id">
+                        <button class="btn btn-light flex-fill" data-bs-toggle="modal"  data-bs-target="#commentModal-@post.Id">
 
 
                             <i class="bi bi-chat"></i>
 
 
-                            <span class="comment-count"
-                                  id="comment-count-@post.Id"
-                                  data-post-id="@post.Id">
+                            <span class="comment-count" id="comment-count-@post.Id" data-post-id="@post.Id">
 
                                 @if (post.CommentCount > 0)
                                 {
@@ -283,25 +226,16 @@
                                 }
 
                             </span>
-
                             Comment
-
-
                         </button>
 
 
 
-                        <button class="btn btn-light flex-fill">
-
-                            <i class="bi bi-share"></i>
-
-                            Share
-
+                        <button class="btn btn-light flex-fill">  <i class="bi bi-share"></i> Share
                         </button>
 
 
                     </div>
-
 
 
                 </div>
@@ -357,9 +291,7 @@
                                     <div class="d-flex mb-3">
 
 
-                                        <img src="@(string.IsNullOrEmpty(comment.User.ProfileImage)
-                                                                            ? "/images/default-profile.png"
-                                                                            : comment.User.ProfileImage)"
+                                        <img src="@(string.IsNullOrEmpty(comment.User.ProfileImage) ? "/images/default-profile.png" : comment.User.ProfileImage)"
                                              width="40"
                                              height="40"
                                              class="rounded-circle me-2"
