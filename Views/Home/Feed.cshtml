@@ -69,61 +69,56 @@
        @* post model *@
 
 
-        <div class="modal fade"
-             id="createPostModal">
+        <div class="modal fade"  id="createPostModal">
 
 
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
 
 
-                <form asp-controller="Posts"
-      asp-action="Create"
-      method="post"
-      enctype="multipart/form-data">
+                <form asp-controller="Posts"  asp-action="Create" method="post"  enctype="multipart/form-data">
 
-    <div class="modal-content rounded-4">
-
-
+                    <div class="modal-content rounded-4">
                     <div class="modal-header">
 
-                        <h5 class="fw-bold">
-                            Create Post
-                        </h5>
+                        <h5 class="fw-bold">  Create Post </h5>
 
 
-                        <button class="btn-close"
-                                data-bs-dismiss="modal">
-                        </button>
+                        <button class="btn-close" data-bs-dismiss="modal">  </button>
                      
 
                     </div>
 
 
 
-                    <div class="modal-body">
+                <div class="modal-body">
 
+                    <div class="d-flex align-items-center mb-3">
 
-                        <div class="d-flex align-items-center mb-3">
+                        <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)
+                                    ? "/images/default-profile.png"
+                                    : currentUser.ProfileImage)"
+                             width="50"
+                             height="50"
+                             class="rounded-circle me-3"
+                             style="object-fit:cover;">
 
-
-                                <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)       ? "/images/default-profile.png" : currentUser.ProfileImage)"
-                                     width="50"  height="50" class="rounded-circle me-3"   style="object-fit:cover;">
-
-                            <div>
-                                <h6 class="mb-0">  @currentUser?.FullName     </h6>
-                                <small class="text-muted">  Public </small>
-                            </div>
+                        <div>
+                            <h6 class="mb-0">@currentUser?.FullName</h6>
+                            <small class="text-muted">Public</small>
                         </div>
-
-
-
-                            <textarea asp-for="NewPost.Caption" class="form-control border-0 shadow-none"  rows="5" placeholder="What's on your mind?"></textarea>
-
-
-                        <img id="previewImage" class="img-fluid rounded mt-3 d-none">
 
                     </div>
 
+                    <textarea asp-for="NewPost.Caption"
+                              class="form-control border-0 shadow-none fs-5"
+                              rows="8"
+                              placeholder="What's on your mind?"
+                              style="resize:none;"></textarea>
+
+                    <img id="previewImage"
+                         class="img-fluid rounded mt-3 d-none">
+
+                </div>
 
 
 
@@ -311,7 +306,7 @@
 
 
 
-                                                <!-- ONLY OWNER DELETE -->
+                                                @* Delete Comment *@
                                                 @if (comment.UserId == currentUser.Id)
                                                 {
 

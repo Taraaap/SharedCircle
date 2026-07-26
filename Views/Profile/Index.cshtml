@@ -1,9 +1,19 @@
 ﻿@model ProfileVM
+@using SharedCircle.Helpers
+
+@using Microsoft.AspNetCore.Identity
+@using SharedCircle.Models
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
+
 
 <div class="row g-4">
 
 
-    <!-- PROFILE SECTION -->
+    @* Profile section *@
     <div class="col-lg-4">
 
 
@@ -19,7 +29,7 @@
                      width="120"height="120"class="rounded-circle mb-3"style="object-fit:cover;">
 
 
-                <!-- Upload Button -->
+                @* Profile picture change *@
 
                 <form asp-action="UploadProfileImage" asp-controller="Profile" method="post"enctype="multipart/form-data">
 
@@ -40,7 +50,7 @@
 
                 </form>
 
-
+                @* edit *@
                 <h3 class="fw-bold mt-3"> @Model.User.FullName
                 </h3>
 
@@ -94,100 +104,338 @@
 
 
 
-
+    @* user post section *@
 <div class="col-lg-8">
 
     <h4 class="mb-3">My Posts</h4>
 
-    @foreach (var post in Model.Posts)
-    {
-        <div class="card shadow-sm rounded-4 mb-4">
+        @foreach (var post in Model.Posts)
+        {
 
-            <div class="card-body">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
 
-                <div class="d-flex justify-content-between">
+                <div class="card-body">
 
-                    <div class="d-flex">
+                    @* post header *@
+                    <div class="d-flex justify-content-between align-items-center mb-3">
 
-                        <img src="@(string.IsNullOrEmpty(Model.User.ProfileImage) ? "/images/default-profile.png": Model.User.ProfileImage)"
-                             width="45" height="45" class="rounded-circle me-3" style="object-fit:cover;" />
+                        <div class="d-flex align-items-center">
 
-                        <div>
-                            <h6 class="mb-0">@Model.User.FullName</h6>
-                            <small class="text-muted">
-                                    @post.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")
-                            </small>
+                            <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)
+                                        ? "/images/default-profile.png"
+                                        : post.User.ProfileImage)"
+                                 width="45"
+                                 height="45"
+                                 class="rounded-circle me-3"
+                                 style="object-fit:cover;">
+
+                            <div>
+
+                                <h6 class="mb-0">
+                                    @post.User.FullName
+                                </h6>
+
+                                <small class="text-muted">
+                                    @TimeHelper.GetTimeAgo(post.CreatedAt)
+                                </small>
+
+                            </div>
+
                         </div>
 
+
+                        @* three dots *@
+                        @if (post.UserId == currentUser.Id)
+                        {
+                            <div class="dropdown">
+
+                                <button class="btn btn-light btn-sm rounded-circle"
+                                        data-bs-toggle="dropdown">
+
+                                    <i class="bi bi-three-dots"></i>
+
+                                </button>
+
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+
+                                        <form asp-controller="Posts"
+                                              asp-action="Delete"
+                                              method="post">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@post.Id" />
+
+                                            <button class="dropdown-item text-danger"
+                                                    type="submit">
+
+                                                <i class="bi bi-trash me-2"></i>
+                                                Delete
+
+                                            </button>
+
+                                        </form>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                        }
+
                     </div>
+                </div>
 
-                    <!-- Three-dot menu -->
-                    <div class="dropdown">
+             
+               
+       
 
-                        <button class="btn btn-light btn-sm"
-                                data-bs-toggle="dropdown">
 
-                            <i class="bi bi-three-dots"></i>
+                <p class="mt-3">   @post.Caption  </p>
 
+
+                    @if (!string.IsNullOrEmpty(post.ImageUrl))
+                    {
+                        <img src="@post.ImageUrl" class="img-fluid rounded-3 w-100 mb-3">
+                    }
+
+
+
+                    @*  ACTION BUTTONS  *@
+
+                    <div class="d-flex border-top pt-2">
+
+                        <button class="btn btn-light flex-fill like-btn" data-post-id="@post.Id">
+                        <i class="bi @(post.IsLiked ? "bi-heart-fill text-danger" : "bi-heart")"></i>
+
+                            <span class="like-count @(post.LikeCount == 0 ? "d-none" : "")">
+                                @post.LikeCount
+                            </span>
+
+                            Likes
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end">
 
-                            <li>
+                        @*  COMMENT BUTTON  *@
 
-                                <form asp-controller="Posts"asp-action="Delete" method="post">
+                        <button class="btn btn-light flex-fill" data-bs-toggle="modal" data-bs-target="#commentModal-@post.Id">
 
-                                    <input type="hidden" name="id"value="@post.Id" />
 
-                                    <button class="dropdown-item text-danger">
+                            <i class="bi bi-chat"></i>
 
-                                        <i class="bi bi-trash"></i>
 
-                                        Delete
+                            <span class="comment-count" id="comment-count-@post.Id" data-post-id="@post.Id">
 
-                                    </button>
+                                @if (post.CommentCount > 0)
+                                {
+                                    @post.CommentCount
+                                }
 
-                                </form>
+                            </span>
+                            Comment
+                        </button>
 
-                            </li>
 
-                        </ul>
+
+                        <button class="btn btn-light flex-fill">
+                            <i class="bi bi-share"></i> Share
+                        </button>
+
 
                     </div>
+
 
                 </div>
 
-                <p class="mt-3">@post.Caption</p>
 
-                @if (!string.IsNullOrEmpty(post.ImageUrl))
-                {
-                    <img src="@post.ImageUrl"
-                         class="img-fluid rounded-3 w-100 mb-3" />
-                }
+          
 
-                <div class="d-flex border-top pt-2">
 
-                   <button class="btn btn-light flex-fill like-btn"
-                                data-post-id="@post.Id">
-                           <span class="like-count">@post.LikeCount</span>
-                           Like
-                        </button>
 
-                    <button class="btn btn-light flex-fill">
-                        <i class="bi bi-chat"></i> Comment
-                    </button>
 
-                    <button class="btn btn-light flex-fill">
-                        <i class="bi bi-share"></i> Share
-                    </button>
+            @*  COMMENT MODAL  *@
+
+            <div class="modal fade"
+                 id="commentModal-@post.Id">
+
+
+                <div class="modal-dialog modal-dialog-centered">
+
+
+                    <div class="modal-content rounded-4">
+
+
+                        <div class="modal-header">
+
+
+                            <h5 class="fw-bold">
+                                Comments
+                            </h5>
+
+
+                            <button class="btn-close"
+                                    data-bs-dismiss="modal">
+                            </button>
+
+
+                        </div>
+
+
+
+
+                        <div class="modal-body">
+
+
+
+                            @*  ALL COMMENTS  *@
+
+                            <div id="comments-@post.Id">
+
+
+                                @foreach (var comment in post.Comments)
+                                {
+
+                                    <div class="d-flex mb-3">
+
+
+                                        <img src="@(string.IsNullOrEmpty(comment.User.ProfileImage) ? "/images/default-profile.png" : comment.User.ProfileImage)"
+                                             width="40"
+                                             height="40"
+                                             class="rounded-circle me-2"
+                                             style="object-fit:cover;">
+
+
+
+                                        <div class="bg-light rounded-3 px-3 py-2 flex-grow-1">
+
+
+                                            <div class="d-flex justify-content-between">
+
+
+                                                <strong>
+                                                    @comment.User.FullName
+                                                </strong>
+
+
+
+                                                @* Delete Comment *@
+                                                @if (comment.UserId == currentUser.Id)
+                                                {
+
+                                                    <form asp-controller="Comments"
+                                                          asp-action="Delete"
+                                                          method="post">
+
+                                                        <input type="hidden"
+                                                               name="id"
+                                                               value="@comment.Id" />
+
+                                                        <button class="btn btn-sm text-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+
+                                                    </form>
+
+                                                }
+
+
+                                            </div>
+
+
+
+                                            <div>
+
+                                                @comment.Text
+
+                                            </div>
+
+
+
+                                            <small class="text-muted">
+
+                                                @TimeHelper.GetTimeAgo(comment.CreatedAt)
+
+                                            </small>
+
+
+                                        </div>
+
+
+                                    </div>
+
+                                }
+
+
+                            </div>
+
+
+
+
+                           @* add comment *@
+
+
+                            <div class="input-group mt-3">
+
+
+                                <input type="text"
+                                       class="form-control comment-text"
+                                       data-post-id="@post.Id"
+                                       placeholder="Write a comment...">
+
+
+
+                                <button class="btn btn-primary comment-btn"
+                                        data-post-id="@post.Id">
+
+
+                                    Send
+
+
+                                </button>
+
+
+                            </div>
+
+
+
+                        </div>
+
+
+                    </div>
+
 
                 </div>
+
 
             </div>
 
-        </div>
-    }
 
+        }
+
+        @section Scripts {
+            <script>
+                        const upload = document.getElementById("imageUpload");
+
+                        upload?.addEventListener("change", function() {
+                            if (this.files.length > 0) {
+                                const reader = new FileReader();
+
+                                reader.onload = function(e) {
+                                    let img = document.getElementById("previewImage");
+                                    img.src = e.target.result;
+                                    img.classList.remove("d-none");
+                                };
+
+                                reader.readAsDataURL(this.files[0]);
+                            }
+                        });
+            </script>
+        }
 </div>
 
 
+
+</div>

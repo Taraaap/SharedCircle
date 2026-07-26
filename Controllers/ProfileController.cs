@@ -37,15 +37,28 @@ namespace SharedCircle.Controllers
                 return NotFound();
             }
 
+
             ProfileVM vm = new ProfileVM
             {
                 User = user,
+
                 Posts = await _db.UserPosts
                     .Where(x => x.UserId == user.Id)
                     .Include(x => x.User)
+                    .Include(x => x.Comments)
+                        .ThenInclude(c => c.User)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync()
             };
+
+
+            foreach (var post in vm.Posts)
+            {
+                post.IsLiked = await _db.Likes.AnyAsync(l =>
+                    l.PostId == post.Id &&
+                    l.UserId == user.Id);
+            }
+
 
             return View(vm);
         }
