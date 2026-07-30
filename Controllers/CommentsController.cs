@@ -61,6 +61,17 @@ public class CommentsController : Controller
 
         _db.Comments.Add(comment);
 
+        if (post.UserId != user.Id)
+        {
+            _db.Notifications.Add(new Notification
+            {
+                SenderId = user.Id,
+                ReceiverId = post.UserId,
+                PostId = post.Id,
+                Message = "commented on your post"
+            });
+        }
+
         await _db.SaveChangesAsync();
 
 

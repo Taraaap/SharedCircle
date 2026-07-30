@@ -57,6 +57,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHub<CommentHub>("/commentHub");
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllerRoute(
     name: "default",

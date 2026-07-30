@@ -6,6 +6,9 @@ using SharedCircle.Data;
 using SharedCircle.Models;
 using SharedCircle.ViewModels;
 
+using Microsoft.AspNetCore.SignalR;
+using SharedCircle.Hubs;
+
 namespace SharedCircle.Controllers
 {
     [Authorize]
@@ -14,15 +17,18 @@ namespace SharedCircle.Controllers
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IHubContext<NotificationHub> _notificationHub;
 
         public PostsController(
             ApplicationDbContext db,
             UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IHubContext<NotificationHub> notificationHub)
         {
             _db = db;
             _userManager = userManager;
             _environment = environment;
+            _notificationHub = notificationHub;
         }
 
         
@@ -175,6 +181,17 @@ namespace SharedCircle.Controllers
                     UserId = user.Id
                 });
 
+                if (post.UserId != user.Id)
+                {
+                    _db.Notifications.Add(new Notification
+                    {
+                        SenderId = user.Id,
+                        ReceiverId = post.UserId,
+                        PostId = post.Id,
+                        Message = "liked your post"
+                    });
+                }
+
                 post.LikeCount++;
                 isLiked = true;
             }
@@ -191,6 +208,8 @@ namespace SharedCircle.Controllers
             }
 
             await _db.SaveChangesAsync();
+
+            await _notificationHub.Clients.Group(post.UserId).SendAsync("ReceiveNotification");
 
             return Ok(new
             {
