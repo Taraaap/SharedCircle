@@ -110,15 +110,3 @@ function timeAgo(date) {
 }
 
 
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/notificationHub")
-    .build();
-
-connection.on("ReceiveNotification", function () {
-
-    loadNotificationCount();
-
-});
-
-connection.start();
