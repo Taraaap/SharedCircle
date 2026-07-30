@@ -2,32 +2,41 @@
 @using SharedCircle.Models
 @inject UserManager<ApplicationUser> UserManager
 
-    @{
+@{
     var currentUser = await UserManager.GetUserAsync(User);
 }
 
-<div class="container-fluid bg-white shadow-sm">
+<div class="container-fluid">
 
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm px-4 py-2">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        
+        <a class="navbar-brand d-flex align-items-center me-4"
+           asp-controller="Home"
+           asp-action="Feed">
 
-        <a class="navbar-brand d-flex align-items-center" asp-controller="Home"  asp-action="Feed">
-            <img src="~/images/logo.png" width="40" height="40"    class="rounded-circle me-2">
-            <span class="fw-bold fs-4"> SharedCircle </span>
+            <img src="~/images/logo.png"
+                 width="40"
+                 height="40"
+                 class="rounded-circle me-2">
+
+            <span class="fw-bold fs-4">SharedCircle</span>
         </a>
 
-
-
-        <form class="d-flex ms-5">
-            <input class="form-control rounded-pill" placeholder="Search friends">
+        @* search *@
+        <form class="d-flex ms-2">
+            <input class="form-control rounded-pill"
+                   style="width:280px;"
+                   placeholder="Search friends">
         </form>
 
+        @* right *@
         <ul class="navbar-nav ms-auto align-items-center">
 
             @* notification *@
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown me-2">
 
-                <a class="nav-link position-relative"
+                <a class="nav-link px-2 position-relative"
                    href="#"
                    id="notificationDropdown"
                    role="button"
@@ -64,39 +73,43 @@
             </li>
 
            @* chat *@
-            <li class="nav-item">
-                <a class="nav-link">
+            <li class="nav-item me-2">
+
+                <a class="nav-link px-2" href="#">
                     <i class="bi bi-chat-dots fs-5"></i>
                 </a>
+
             </li>
 
-           @* prodile *@
-            <li class="nav-item dropdown">
+           @* profile *@
+            <li class="nav-item dropdown ms-2">
 
-                <a class="nav-link dropdown-toggle"
+                <a class="nav-link dropdown-toggle d-flex align-items-center"
                    href="#"
                    data-bs-toggle="dropdown">
 
-                    <img src="@(string.IsNullOrEmpty(currentUser.ProfileImage)
-                                    ? "/images/default-profile.png"
-                                    : currentUser.ProfileImage)"
+                    <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage)
+                                                        ? "/images/default-profile.png"
+                                                        : currentUser.ProfileImage)"
                          width="38"
                          height="38"
                          class="rounded-circle me-2"
                          style="object-fit:cover;">
 
-                    @currentUser.FullName
+                    <span class="fw-semibold">@currentUser?.FullName</span>
 
                 </a>
 
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
 
                     <li>
                         <a asp-controller="Profile"
                            asp-action="Index"
                            class="dropdown-item">
+
                             <i class="bi bi-person me-2"></i>
                             Profile
+
                         </a>
                     </li>
 
@@ -105,7 +118,7 @@
             </li>
 
         </ul>
-    </nav>
 
+    </nav>
 
 </div>
