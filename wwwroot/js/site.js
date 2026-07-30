@@ -23,7 +23,25 @@ connection.start()
     });
 
 
+connection.on("ReceiveLike", function (postId, likeCount) {
 
+    document.querySelectorAll(".like-btn").forEach(btn => {
+
+        if (btn.dataset.postId == postId) {
+
+            let count = btn.querySelector(".like-count");
+
+            count.innerText = likeCount;
+
+            if (likeCount == 0)
+                count.classList.add("d-none");
+            else
+                count.classList.remove("d-none");
+        }
+
+    });
+
+});
 
 const upload = document.getElementById("imageUpload");
 

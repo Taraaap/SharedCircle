@@ -1,5 +1,23 @@
 ﻿
+const notificationConnection = new signalR.HubConnectionBuilder()
+    .withUrl("/notificationHub")
+    .build();
 
+notificationConnection.on("ReceiveNotification", function () {
+
+    console.log("New notification received");
+
+    loadNotificationCount();
+
+    if ($("#notificationDropdown").attr("aria-expanded") === "true") {
+        $("#notificationDropdown").trigger("click");
+    }
+
+});
+
+notificationConnection.start()
+    .then(() => console.log("NotificationHub Connected"))
+    .catch(err => console.error(err));
 
 loadNotificationCount();
 
@@ -108,5 +126,4 @@ function timeAgo(date) {
 
     return "Just now";
 }
-
 

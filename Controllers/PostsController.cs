@@ -18,17 +18,19 @@ namespace SharedCircle.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IHubContext<NotificationHub> _notificationHub;
-
+        private readonly IHubContext<CommentHub> _hub;   //  this line for Like SignalR
         public PostsController(
             ApplicationDbContext db,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment environment,
-            IHubContext<NotificationHub> notificationHub)
+            IHubContext<NotificationHub> notificationHub,
+            IHubContext<CommentHub> hub)
         {
             _db = db;
             _userManager = userManager;
             _environment = environment;
             _notificationHub = notificationHub;
+            _hub = hub;
         }
 
         
@@ -208,6 +210,7 @@ namespace SharedCircle.Controllers
             }
 
             await _db.SaveChangesAsync();
+            await _hub.Clients.All.SendAsync( "ReceiveLike",post.Id,post.LikeCount);
 
             await _notificationHub.Clients.Group(post.UserId).SendAsync("ReceiveNotification");
 

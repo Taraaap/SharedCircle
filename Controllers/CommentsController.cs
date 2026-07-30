@@ -16,15 +16,17 @@ public class CommentsController : Controller
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHubContext<CommentHub> _hub;
-
+    private readonly IHubContext<NotificationHub> _notificationHub;
     public CommentsController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> userManager,
-        IHubContext<CommentHub> hub)
+        IHubContext<CommentHub> hub,
+        IHubContext<NotificationHub> notificationHub)
     {
         _db = db;
         _userManager = userManager;
         _hub = hub;
+        _notificationHub = notificationHub;
     }
 
     [HttpPost]
@@ -73,7 +75,7 @@ public class CommentsController : Controller
         }
 
         await _db.SaveChangesAsync();
-
+        await _notificationHub.Clients.Group(post.UserId).SendAsync("ReceiveNotification");
 
         await _hub.Clients.AllExcept(connectionId).SendAsync("ReceiveComment",
          comment.PostId,
