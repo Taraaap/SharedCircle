@@ -38,6 +38,12 @@ namespace SharedCircle.Controllers
             }
 
 
+            var followers = await _db.Follows.CountAsync(f => f.FollowingId == user.Id);
+
+            var following = await _db.Follows.CountAsync(f => f.FollowerId == user.Id);
+        
+
+
             ProfileVM vm = new ProfileVM
             {
                 User = user,
@@ -48,7 +54,10 @@ namespace SharedCircle.Controllers
                     .Include(x => x.Comments)
                         .ThenInclude(c => c.User)
                     .OrderByDescending(x => x.CreatedAt)
-                    .ToListAsync()
+                    .ToListAsync(),
+
+                FollowersCount = followers,
+                FollowingCount = following
             };
 
 
@@ -171,6 +180,51 @@ namespace SharedCircle.Controllers
 
             return RedirectToAction("Index");
         }
-       
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetFollowers(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var followers = await _db.Follows
+                .Where(f => f.FollowingId == id)
+                .Select(f => new FollowUserVM
+                {
+                    Id = f.Follower.Id,
+                    FullName = f.Follower.FullName,
+                    ProfileImage = f.Follower.ProfileImage,
+
+                    IsFollowing = _db.Follows.Any(x =>
+                        x.FollowerId == currentUser.Id &&
+                        x.FollowingId == f.Follower.Id)
+                })
+                .ToListAsync();
+
+            return Json(followers);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetFollowing(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var following = await _db.Follows
+                .Where(f => f.FollowerId == id)
+                .Select(f => new FollowUserVM
+                {
+                    Id = f.Following.Id,
+                    FullName = f.Following.FullName,
+                    ProfileImage = f.Following.ProfileImage,
+
+                    IsFollowing = true
+                })
+                .ToListAsync();
+
+            return Json(following);
+        }
+
     }
 }

@@ -10,14 +10,14 @@
 
 
 
-<div class="row g-4">
+<div class="row g-4 mt-2">
 
 
     @* Profile section *@
-    <div class="col-lg-4">
+    <div class="col-lg-6">
 
 
-        <div class="card rounded-4 shadow-sm">
+        <div class="card rounded-4 shadow-sm" >
 
 
             <div class="card-body text-center">
@@ -49,6 +49,9 @@
 
 
                 </form>
+
+               
+               
 
                 @* edit *@
                 <h3 class="fw-bold mt-3"> @Model.User.FullName
@@ -92,6 +95,30 @@
 
                 </button>
 
+                @* Followers and Following *@
+                <div class="d-flex justify-content-center gap-5 mt-3">
+
+                    <div class="text-center">
+                        <a href="#"id="followersBtn" data-user-id="@Model.User.Id" class="text-decoration-none text-dark">
+
+                            <h5 id="followersCount">@Model.FollowersCount</h5>
+
+                            <small>Followers</small>
+
+                        </a>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="#"  id="followingBtn" data-user-id="@Model.User.Id" class="text-decoration-none text-dark">
+
+                            <h5 id="followingCount">@Model.FollowingCount</h5>
+                            <small>Following</small>
+
+                        </a>
+                    </div>
+
+                </div>
+
 
             </div>
 
@@ -105,7 +132,7 @@
 
 
     @* user post section *@
-<div class="col-lg-8">
+<div class="col-lg-6">
 
     <h4 class="mb-3">My Posts</h4>
 
@@ -437,5 +464,43 @@
 </div>
 
 
+@* model *@
+    <div class="modal fade" id="followModal" tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="followModalTitle">
+                        Followers
+                    </h5>
+
+                    <button class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-0">
+
+                    <div id="followList">
+
+                        <div class="text-center p-4">
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>

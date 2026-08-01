@@ -1,0 +1,51 @@
+﻿@model List<ApplicationUser>
+@using SharedCircle.Models
+
+
+
+
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white fw-bold">
+        Suggested Users
+    </div>
+
+
+    <div class="card-body">
+
+        @foreach(var user in Model)
+        {
+            <div class="d-flex align-items-center mb-3">
+
+
+                <img src="@(string.IsNullOrEmpty(user.ProfileImage)
+                    ? "/images/default-profile.png"
+                    : user.ProfileImage)"
+                     width="40"
+                     height="40"
+                     class="rounded-circle me-2"
+                     style="object-fit:cover;" />
+
+
+                <div class="flex-grow-1">
+
+                    <strong>
+                        @user.FullName
+                    </strong>
+
+                </div>
+
+
+                <button class="btn btn-primary btn-sm follow-btn"
+                        data-user-id="@user.Id">
+                    Follow
+                </button>
+
+
+            </div>
+        }
+
+
+    </div>
+
+</div>

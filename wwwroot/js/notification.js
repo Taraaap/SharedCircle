@@ -127,3 +127,20 @@ function timeAgo(date) {
     return "Just now";
 }
 
+notificationConnection.on("ReceiveFollowUpdate", function (count) {
+
+    let followers = document.getElementById("followersCount");
+
+    if (followers)
+        followers.innerText = count;
+
+});
+
+notificationConnection.on("ReceiveFollowingUpdate", function (count) {
+
+    let following = document.getElementById("followingCount");
+
+    if (following)
+        following.innerText = count;
+
+});

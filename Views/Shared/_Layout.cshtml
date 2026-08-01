@@ -73,7 +73,8 @@
 
                             <div class="sticky-top" style="top:80px;">
 
-                                <partial name="_RightSide" />
+                            @* <partial name="_RightSide" /> *@
+                            @await Component.InvokeAsync("RightSide")
 
                             </div>
 
@@ -101,9 +102,12 @@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/notification.js" asp-append-version="true"></script>
+    <script src="~/js/follow.js"></script>
 
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/profile.js"></script>
+
 
 
     @await RenderSectionAsync("Scripts", required: false)
