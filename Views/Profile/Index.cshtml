@@ -16,40 +16,24 @@
     @* Profile section *@
     <div class="col-lg-6">
 
-
         <div class="card rounded-4 shadow-sm" >
-
-
             <div class="card-body text-center">
-
-
-               
-
                 <img src="@(string.IsNullOrEmpty(Model.User.ProfileImage)? "/images/default-profile.png" : Model.User.ProfileImage  )"
                      width="120"height="120"class="rounded-circle mb-3"style="object-fit:cover;">
 
 
                 @* Profile picture change *@
-
+                @if (Model.IsOwnProfile)
+{
                 <form asp-action="UploadProfileImage" asp-controller="Profile" method="post"enctype="multipart/form-data">
 
 
                     <label class="btn btn-outline-primary btn-sm">
-
-
-                        <i class="bi bi-camera me-1"></i>
-
-                        Change Photo
-
-
+                        <i class="bi bi-camera me-1"></i> Change Photo
                         <input type="file" name="image" hidden accept="image/*" onchange="this.form.submit()">
-
-
                     </label>
-
-
                 </form>
-
+                }
                
                
 
@@ -85,15 +69,23 @@
                 </div>
 
 
-                <button class="btn btn-primary w-100 mt-2">
-
+                @if (Model.IsOwnProfile)
+                {
                     <a asp-controller="Profile"
                        asp-action="Edit"
                        class="btn btn-primary w-100 mt-2">
                         Edit Profile
                     </a>
+                }
+                else
+                {
+                    <button class="btn @(Model.IsFollowing ? "btn-outline-secondary" : "btn-primary") w-100 mt-2 profile-follow-btn"
+                            data-user-id="@Model.User.Id">
 
-                </button>
+                        @(Model.IsFollowing ? "Following" : "Follow")
+
+                    </button>
+                }
 
                 @* Followers and Following *@
                 <div class="d-flex justify-content-center gap-5 mt-3">
@@ -134,7 +126,14 @@
     @* user post section *@
 <div class="col-lg-6">
 
-    <h4 class="mb-3">My Posts</h4>
+        @if (Model.IsOwnProfile)
+        {
+            <h4 class="mb-3">My Posts</h4>
+        }
+        else
+        {
+            <h4 class="mb-3">@Model.User.FullName's Posts</h4>
+        }
 
         @foreach (var post in Model.Posts)
         {
@@ -148,18 +147,24 @@
 
                         <div class="d-flex align-items-center">
 
-                            <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)
+                            <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id">
+
+                                <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)
                                         ? "/images/default-profile.png"
                                         : post.User.ProfileImage)"
-                                 width="45"
-                                 height="45"
-                                 class="rounded-circle me-3"
-                                 style="object-fit:cover;">
+                                     width="45"
+                                     height="45"
+                                     class="rounded-circle me-3"
+                                     style="object-fit:cover;" />
 
+                            </a>
                             <div>
 
                                 <h6 class="mb-0">
-                                    @post.User.FullName
+                                    <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id"
+                                       class="text-decoration-none text-dark">
+                                        @post.User.FullName
+                                    </a>
                                 </h6>
 
                                 <small class="text-muted">
@@ -188,20 +193,13 @@
 
                                     <li>
 
-                                        <form asp-controller="Posts"
-                                              asp-action="Delete"
-                                              method="post">
+                                        <form asp-controller="Posts" asp-action="Delete" method="post">
 
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@post.Id" />
+                                            <input type="hidden"  name="id" value="@post.Id" />
 
-                                            <button class="dropdown-item text-danger"
-                                                    type="submit">
-
+                                            <button class="dropdown-item text-danger" type="submit">
                                                 <i class="bi bi-trash me-2"></i>
                                                 Delete
-
                                             </button>
 
                                         </form>
@@ -337,13 +335,12 @@
 
 
                                         <div class="bg-light rounded-3 px-3 py-2 flex-grow-1">
-
-
                                             <div class="d-flex justify-content-between">
-
-
                                                 <strong>
-                                                    @comment.User.FullName
+                                                    <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@comment.User.Id"
+                                                       class="text-decoration-none text-dark">
+                                                        @comment.User.FullName
+                                                    </a>
                                                 </strong>
 
 
@@ -352,35 +349,20 @@
                                                 @if (comment.UserId == currentUser.Id)
                                                 {
 
-                                                    <form asp-controller="Comments"
-                                                          asp-action="Delete"
-                                                          method="post">
+                                                    <form asp-controller="Comments"   asp-action="Delete"   method="post">
 
-                                                        <input type="hidden"
-                                                               name="id"
-                                                               value="@comment.Id" />
-
+                                                        <input type="hidden" name="id" value="@comment.Id" />
                                                         <button class="btn btn-sm text-danger">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
 
                                                     </form>
-
                                                 }
-
-
                                             </div>
-
-
 
                                             <div>
-
                                                 @comment.Text
-
                                             </div>
-
-
-
                                             <small class="text-muted">
 
                                                 @TimeHelper.GetTimeAgo(comment.CreatedAt)
@@ -406,22 +388,10 @@
 
                             <div class="input-group mt-3">
 
-
-                                <input type="text"
-                                       class="form-control comment-text"
-                                       data-post-id="@post.Id"
-                                       placeholder="Write a comment...">
-
-
-
-                                <button class="btn btn-primary comment-btn"
-                                        data-post-id="@post.Id">
-
-
+                                <input type="text"   class="form-control comment-text"   data-post-id="@post.Id"placeholder="Write a comment...">
+                               <button class="btn btn-primary comment-btn" data-post-id="@post.Id">
                                     Send
-
-
-                                </button>
+                               </button>
 
 
                             </div>
@@ -489,7 +459,7 @@
 
                         <div class="text-center p-4">
 
-                            Loading...
+                            No one to show.
 
                         </div>
 

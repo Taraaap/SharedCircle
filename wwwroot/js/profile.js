@@ -34,34 +34,45 @@ function loadFollowList(type, userId) {
                     let image = user.profileImage || "/images/default-profile.png";
 
                     html += `
-                        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+<div class="d-flex justify-content-between align-items-center p-3 border-bottom">
 
-                            <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center">
 
-                                <img src="${image}"
-                                     width="45"
-                                     height="45"
-                                     class="rounded-circle me-3"
-                                     style="object-fit:cover;">
+        <a href="/Profile/ViewProfile/${user.id}">
+            <img src="${image}"
+                 width="45"
+                 height="45"
+                 class="rounded-circle me-3"
+                 style="object-fit:cover;">
+        </a>
 
-                                <div>
+        <div>
+            <a href="/Profile/ViewProfile/${user.id}"
+               class="text-decoration-none text-dark fw-bold">
+                ${user.fullName}
+            </a>
+        </div>
 
-                                    <strong>${user.fullName}</strong>
+    </div>
 
-                                </div>
+   ${user.isMe? `
+        <span class="badge bg-secondary">
+            You
+        </span>
+    `
+                            : `
+        <button
+            class="btn btn-sm ${user.isFollowing ? "btn-outline-secondary" : "btn-primary"} follow-btn"
+            data-user-id="${user.id}">
 
-                            </div>
+            ${user.isFollowing ? "Following" : "Follow"}
 
-                            <button
-                                class="btn btn-sm ${user.isFollowing ? "btn-outline-secondary" : "btn-primary"} follow-btn"
-                                data-user-id="${user.id}">
+        </button>
+    `
+}
 
-                                ${user.isFollowing ? "Following" : "Follow"}
-
-                            </button>
-
-                        </div>
-                    `;
+</div>
+`;
                 });
 
             }
@@ -103,62 +114,54 @@ document.getElementById("followingBtn")
 
 document.addEventListener("click", function (e) {
 
-    if (!e.target.classList.contains("follow-btn"))
+    const button = e.target.closest(".follow-btn");
+
+    if (!button)
         return;
 
-    let button = e.target;
+    e.preventDefault();
 
     let userId = button.dataset.userId;
 
     fetch("/Follow/ToggleFollow", {
-
         method: "POST",
-
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
-
         body: "userId=" + encodeURIComponent(userId)
-
     })
         .then(r => r.json())
         .then(data => {
 
             if (data.isFollowing) {
-
                 button.classList.remove("btn-primary");
                 button.classList.add("btn-outline-secondary");
-
                 button.innerText = "Following";
-
             }
             else {
-
                 button.classList.remove("btn-outline-secondary");
                 button.classList.add("btn-primary");
-
                 button.innerText = "Follow";
-
             }
 
         });
 
 });
 
-let followers = document.getElementById("followersCount");
-let following = document.getElementById("followingCount");
+// let followers = document.getElementById("followersCount");
+// let following = document.getElementById("followingCount");
 
-if (followers && following) {
+// if (followers && following) {
 
-    if (data.isFollowing) {
+//     if (data.isFollowing) {
 
-        following.innerText = parseInt(following.innerText) + 1;
+//         following.innerText = parseInt(following.innerText) + 1;
 
-    }
-    else {
+//     }
+//     else {
 
-        following.innerText = parseInt(following.innerText) - 1;
+//         following.innerText = parseInt(following.innerText) - 1;
 
-    }
+//     }
 
-}
+// }

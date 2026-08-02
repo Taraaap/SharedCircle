@@ -11,5 +11,7 @@ namespace SharedCircle.ViewModels
         public string? ProfileImage { get; set; }
 
         public bool IsFollowing { get; set; }
+
+        public bool IsMe { get; set; }
     }
 }

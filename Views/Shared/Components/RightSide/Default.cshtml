@@ -18,20 +18,23 @@
             <div class="d-flex align-items-center mb-3">
 
 
-                <img src="@(string.IsNullOrEmpty(user.ProfileImage)
-                    ? "/images/default-profile.png"
-                    : user.ProfileImage)"
-                     width="40"
-                     height="40"
-                     class="rounded-circle me-2"
-                     style="object-fit:cover;" />
+                <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@user.Id">
 
+                    <img src="@(string.IsNullOrEmpty(user.ProfileImage)? "/images/default-profile.png": user.ProfileImage)"
+                         width="45"
+                         height="45"
+                         class="rounded-circle me-3"
+                         style="object-fit:cover;" />
 
+                </a>
                 <div class="flex-grow-1">
 
-                    <strong>
-                        @user.FullName
-                    </strong>
+                    <h6 class="mb-0">
+                        <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@user.Id"
+                           class="text-decoration-none text-dark">
+                            @user.FullName
+                        </a>
+                    </h6>
 
                 </div>
 

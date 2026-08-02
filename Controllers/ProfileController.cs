@@ -135,6 +135,7 @@ namespace SharedCircle.Controllers
         }
 
 
+
         public async Task<IActionResult> Edit()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -182,12 +183,61 @@ namespace SharedCircle.Controllers
         }
 
 
+        public async Task<IActionResult> ViewProfile(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var user = await _db.Users
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+                return NotFound();
+
+            var vm = new ProfileVM
+            {
+                User = user,
+
+                Posts = await _db.UserPosts
+                    .Where(x => x.UserId == id)
+                    .Include(x => x.User)
+                    .Include(x => x.Comments)
+                        .ThenInclude(c => c.User)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToListAsync(),
+
+                FollowersCount = await _db.Follows
+                    .CountAsync(f => f.FollowingId == id),
+
+                FollowingCount = await _db.Follows
+                    .CountAsync(f => f.FollowerId == id),
+
+                IsOwnProfile = currentUser.Id == id,
+
+                IsFollowing = currentUser.Id != id &&
+                    await _db.Follows.AnyAsync(f =>
+                        f.FollowerId == currentUser.Id &&
+                        f.FollowingId == id)
+            };
+
+            foreach (var post in vm.Posts)
+            {
+                post.IsLiked = await _db.Likes.AnyAsync(l =>
+                    l.PostId == post.Id &&
+                    l.UserId == currentUser.Id);
+            }
+
+            return View("Index", vm);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetFollowers(string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
+            
             var followers = await _db.Follows
                 .Where(f => f.FollowingId == id)
                 .Select(f => new FollowUserVM
@@ -196,11 +246,14 @@ namespace SharedCircle.Controllers
                     FullName = f.Follower.FullName,
                     ProfileImage = f.Follower.ProfileImage,
 
-                    IsFollowing = _db.Follows.Any(x =>
-                        x.FollowerId == currentUser.Id &&
-                        x.FollowingId == f.Follower.Id)
+                    IsMe = f.Follower.Id == currentUser.Id,
+
+                    IsFollowing = f.Follower.Id != currentUser.Id && _db.Follows.Any(x =>
+                    x.FollowerId == currentUser.Id &&
+                    x.FollowingId == f.Follower.Id)
                 })
                 .ToListAsync();
+
 
             return Json(followers);
         }
@@ -219,7 +272,11 @@ namespace SharedCircle.Controllers
                     FullName = f.Following.FullName,
                     ProfileImage = f.Following.ProfileImage,
 
-                    IsFollowing = true
+                    IsMe = f.Following.Id == currentUser.Id,
+        
+                    IsFollowing = f.Following.Id != currentUser.Id && _db.Follows.Any(x =>
+                    x.FollowerId == currentUser.Id &&
+                    x.FollowingId == f.Following.Id)
                 })
                 .ToListAsync();
 

@@ -165,12 +165,23 @@
 
                     <div class="d-flex align-items-center mb-3">
 
-                        <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)  ? "/images/default-profile.png"  : post.User.ProfileImage)"
-                             width="45" height="45"  class="rounded-circle me-3"  style="object-fit:cover;">
+                <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id">
+
+                    <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)? "/images/default-profile.png": post.User.ProfileImage)"
+                         width="45"
+                         height="45"
+                         class="rounded-circle me-3"
+                         style="object-fit:cover;" />
+
+                </a>
                         <div>
 
-                            <h6 class="mb-0">  @post.User.FullName
-                            </h6>
+                    <h6 class="mb-0">
+                        <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id"
+                           class="text-decoration-none text-dark">
+                            @post.User.FullName
+                        </a>
+                    </h6>
 
                             <small class="text-muted">   @TimeHelper.GetTimeAgo(post.CreatedAt)
                             </small>
@@ -211,8 +222,6 @@
 
 
                             <i class="bi bi-chat"></i>
-
-
                             <span class="comment-count" id="comment-count-@post.Id" data-post-id="@post.Id">
 
                                 @if (post.CommentCount > 0)
@@ -252,17 +261,11 @@
 
                     <div class="modal-content rounded-4">
 
-
                         <div class="modal-header">
-
-
-                            <h5 class="fw-bold">
-                                Comments
+                            <h5 class="fw-bold"> Comments
                             </h5>
 
-
-                            <button class="btn-close"
-                                    data-bs-dismiss="modal">
+                            <button class="btn-close" data-bs-dismiss="modal">
                             </button>
 
 
@@ -286,22 +289,22 @@
                                     <div class="d-flex mb-3">
 
 
-                                        <img src="@(string.IsNullOrEmpty(comment.User.ProfileImage) ? "/images/default-profile.png" : comment.User.ProfileImage)"
-                                             width="40"
-                                             height="40"
-                                             class="rounded-circle me-2"
-                                             style="object-fit:cover;">
+                                <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id">
 
+                                    <img src="@(string.IsNullOrEmpty(post.User.ProfileImage)? "/images/default-profile.png": post.User.ProfileImage)"
+                                         width="45"
+                                         height="45"
+                                         class="rounded-circle me-3"
+                                         style="object-fit:cover;" />
 
-
+                                </a>
                                         <div class="bg-light rounded-3 px-3 py-2 flex-grow-1">
-
 
                                             <div class="d-flex justify-content-between">
 
-
                                                 <strong>
-                                                    @comment.User.FullName
+                                                    <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@post.User.Id" class="text-decoration-none text-dark">
+                                                        @post.User.FullName </a>
                                                 </strong>
 
 
@@ -310,49 +313,27 @@
                                                 @if (comment.UserId == currentUser.Id)
                                                 {
 
-                                                    <form asp-controller="Comments"
-                                                          asp-action="Delete"
-                                                          method="post">
+                                                    <form asp-controller="Comments"  asp-action="Delete" method="post">
 
-                                                        <input type="hidden"
-                                                               name="id"
-                                                               value="@comment.Id" />
+                                                        <input type="hidden" name="id" value="@comment.Id" />
 
                                                         <button class="btn btn-sm text-danger">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
-
                                                     </form>
-
                                                 }
-
-
                                             </div>
 
 
 
-                                            <div>
-
-                                                @comment.Text
-
-                                            </div>
-
-
+                                            <div> @comment.Text </div>
 
                                             <small class="text-muted">
-
                                                 @TimeHelper.GetTimeAgo(comment.CreatedAt)
-
                                             </small>
-
-
                                         </div>
-
-
                                     </div>
-
                                 }
-
 
                             </div>
 
@@ -365,33 +346,16 @@
                             <div class="input-group mt-3">
 
 
-                                <input type="text"
-                                       class="form-control comment-text"
-                                       data-post-id="@post.Id"
-                                       placeholder="Write a comment...">
+                                <input type="text"   class="form-control comment-text"  data-post-id="@post.Id"  placeholder="Write a comment...">
 
 
 
-                                <button class="btn btn-primary comment-btn"
-                                        data-post-id="@post.Id">
-
-
+                                <button class="btn btn-primary comment-btn" data-post-id="@post.Id">
                                     Send
-
-
                                 </button>
-
-
                             </div>
-
-
-
                         </div>
-
-
                     </div>
-
-
                 </div>
 
 
