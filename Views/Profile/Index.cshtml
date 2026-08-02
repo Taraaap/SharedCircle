@@ -71,15 +71,14 @@
 
                 @if (Model.IsOwnProfile)
                 {
-                    <a asp-controller="Profile"
-                       asp-action="Edit"
-                       class="btn btn-primary w-100 mt-2">
+                    <a asp-controller="Profile"  asp-action="Edit" class="btn btn-primary w-100 mt-2">
                         Edit Profile
                     </a>
                 }
                 else
                 {
-                    <button class="btn @(Model.IsFollowing ? "btn-outline-secondary" : "btn-primary") w-100 mt-2 profile-follow-btn"
+                    <button id="profileFollowBtn"
+                            class="btn @(Model.IsFollowing ? "btn-outline-secondary" : "btn-primary") w-100 mt-2"
                             data-user-id="@Model.User.Id">
 
                         @(Model.IsFollowing ? "Following" : "Follow")

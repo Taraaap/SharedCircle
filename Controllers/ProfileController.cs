@@ -57,7 +57,10 @@ namespace SharedCircle.Controllers
                     .ToListAsync(),
 
                 FollowersCount = followers,
-                FollowingCount = following
+                FollowingCount = following,
+
+                IsOwnProfile = true,
+                IsFollowing = false
             };
 
 

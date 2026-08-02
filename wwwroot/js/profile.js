@@ -148,20 +148,43 @@ document.addEventListener("click", function (e) {
 
 });
 
-// let followers = document.getElementById("followersCount");
-// let following = document.getElementById("followingCount");
+// Follow button on user profile page
+const profileFollowBtn = document.getElementById("profileFollowBtn");
 
-// if (followers && following) {
+if (profileFollowBtn) {
 
-//     if (data.isFollowing) {
+    profileFollowBtn.addEventListener("click", function () {
 
-//         following.innerText = parseInt(following.innerText) + 1;
+        const button = this;
+        const userId = button.dataset.userId;
 
-//     }
-//     else {
+        fetch("/Follow/ToggleFollow", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "userId=" + encodeURIComponent(userId)
+        })
+            .then(r => r.json())
+            .then(data => {
 
-//         following.innerText = parseInt(following.innerText) - 1;
+                if (data.isFollowing) {
 
-//     }
+                    button.classList.remove("btn-primary");
+                    button.classList.add("btn-outline-secondary");
+                    button.innerText = "Following";
 
-// }
+                }
+                else {
+
+                    button.classList.remove("btn-outline-secondary");
+                    button.classList.add("btn-primary");
+                    button.innerText = "Follow";
+
+                }
+
+            });
+
+    });
+
+}
