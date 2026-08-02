@@ -85,8 +85,10 @@ namespace SharedCircle.Controllers
             return Ok(new
             {
                 isFollowing,
-                followersCount = targetFollowers,
-                followingCount = targetFollowing
+                targetFollowers,
+                targetFollowing,
+                myFollowers,
+                myFollowing
             });
         }
 

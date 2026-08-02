@@ -195,11 +195,22 @@ if (profileFollowBtn) {
                 const followers = document.getElementById("followersCount");
                 const following = document.getElementById("followingCount");
 
-                if (followers)
-                    followers.innerText = data.followersCount;
+                const isOwn =
+                    profileFollowBtn.dataset.isOwnProfile === "true";
 
-                if (following)
-                    following.innerText = data.followingCount;
+                if (isOwn) {
+
+                    followers.innerText = data.myFollowers;
+                    following.innerText = data.myFollowing;
+
+                }
+                else {
+
+                    followers.innerText = data.targetFollowers;
+                    following.innerText = data.targetFollowing;
+
+                }
+
             });
 
     });
