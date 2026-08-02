@@ -17,7 +17,7 @@ notificationConnection.on("ReceiveNotification", function () {
 
 notificationConnection.start()
     .then(() => console.log("NotificationHub Connected"))
-    .catch(err => console.error(err));
+    .catch(err => console.error(err)); 
 
 loadNotificationCount();
 
@@ -127,20 +127,3 @@ function timeAgo(date) {
     return "Just now";
 }
 
-notificationConnection.on("ReceiveFollowUpdate", function (count) {
-
-    let followers = document.getElementById("followersCount");
-
-    if (followers)
-        followers.innerText = count;
-
-});
-
-notificationConnection.on("ReceiveFollowingUpdate", function (count) {
-
-    let following = document.getElementById("followingCount");
-
-    if (following)
-        following.innerText = count;
-
-});

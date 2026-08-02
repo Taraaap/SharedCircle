@@ -79,10 +79,10 @@
                 {
                     <button id="profileFollowBtn"
                             class="btn @(Model.IsFollowing ? "btn-outline-secondary" : "btn-primary") w-100 mt-2"
-                            data-user-id="@Model.User.Id">
+                            data-user-id="@Model.User.Id"
+                            data-is-own-profile="@Model.IsOwnProfile.ToString().ToLower()">
 
                         @(Model.IsFollowing ? "Following" : "Follow")
-
                     </button>
                 }
 

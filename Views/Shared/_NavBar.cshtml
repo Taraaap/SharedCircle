@@ -25,9 +25,18 @@
 
         @* search *@
         <form class="d-flex ms-2">
-            <input class="form-control rounded-pill"
-                   style="width:280px;"
-                   placeholder="Search friends">
+            <div class="position-relative">
+
+                <input id="userSearch"
+                       class="form-control"
+                       placeholder="Search users..." />
+
+                <div id="searchResult"
+                     class="list-group position-absolute w-100 shadow"
+                     style="z-index:1000;display:none;">
+                </div>
+
+            </div>
         </form>
 
         @* right *@

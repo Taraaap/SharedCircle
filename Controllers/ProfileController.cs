@@ -286,5 +286,30 @@ namespace SharedCircle.Controllers
             return Json(following);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchUsers(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<object>());
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var users = await _db.Users
+                .Where(u =>
+                    u.FullName.Contains(term) ||
+                    u.UserName.Contains(term))
+                .Take(10)
+                .Select(u => new
+                {
+                    id = u.Id,
+                    fullName = u.FullName,
+                    profileImage = u.ProfileImage,
+                    isMe = u.Id == currentUser.Id
+                })
+                .ToListAsync();
+
+            return Json(users);
+        }
+
     }
 }

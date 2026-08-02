@@ -71,17 +71,22 @@ namespace SharedCircle.Controllers
 
             await _db.SaveChangesAsync();
 
-            var followersCount = await _db.Follows.CountAsync(f => f.FollowingId == userId);
-            var followingCount = await _db.Follows.CountAsync(f => f.FollowerId == currentUser.Id);
+            var targetFollowers = await _db.Follows.CountAsync(f => f.FollowingId == userId);
+            var targetFollowing = await _db.Follows.CountAsync(f => f.FollowerId == userId);
 
-            await _notificationHub.Clients.Group(userId).SendAsync( "ReceiveFollowUpdate",followersCount);
-            await _notificationHub.Clients.Group(currentUser.Id).SendAsync("ReceiveFollowingUpdate", followingCount);
+            var myFollowers = await _db.Follows.CountAsync(f => f.FollowingId == currentUser.Id);
+            var myFollowing = await _db.Follows.CountAsync(f => f.FollowerId == currentUser.Id);
 
-            await _notificationHub.Clients.Group(userId).SendAsync("ReceiveNotification");
+            
+
+            await _notificationHub.Clients.Group(userId)
+                .SendAsync("ReceiveNotification");
 
             return Ok(new
             {
-                isFollowing
+                isFollowing,
+                followersCount = targetFollowers,
+                followingCount = targetFollowing
             });
         }
 

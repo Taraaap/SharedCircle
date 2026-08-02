@@ -144,6 +144,15 @@ document.addEventListener("click", function (e) {
                 button.innerText = "Follow";
             }
 
+            const followers = document.getElementById("followersCount");
+            const following = document.getElementById("followingCount");
+
+            if (followers)
+                followers.innerText = data.followersCount;
+
+            if (following)
+                following.innerText = data.followingCount;
+
         });
 
 });
@@ -183,8 +192,19 @@ if (profileFollowBtn) {
 
                 }
 
+                const followers = document.getElementById("followersCount");
+                const following = document.getElementById("followingCount");
+
+                if (followers)
+                    followers.innerText = data.followersCount;
+
+                if (following)
+                    following.innerText = data.followingCount;
             });
 
     });
 
 }
+
+
+
