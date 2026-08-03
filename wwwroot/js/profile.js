@@ -55,7 +55,7 @@ function loadFollowList(type, userId) {
 
     </div>
 
-   ${user.isMe? `
+   ${user.isMe ? `
         <span class="badge bg-secondary">
             You
         </span>
@@ -69,7 +69,7 @@ function loadFollowList(type, userId) {
 
         </button>
     `
-}
+                        }
 
 </div>
 `;
@@ -133,6 +133,8 @@ document.addEventListener("click", function (e) {
         .then(r => r.json())
         .then(data => {
 
+            console.log(data);
+
             if (data.isFollowing) {
                 button.classList.remove("btn-primary");
                 button.classList.add("btn-outline-secondary");
@@ -143,15 +145,22 @@ document.addEventListener("click", function (e) {
                 button.classList.add("btn-primary");
                 button.innerText = "Follow";
             }
-
             const followers = document.getElementById("followersCount");
             const following = document.getElementById("followingCount");
 
-            if (followers)
-                followers.innerText = data.followersCount;
+            if (followers && following) {
 
-            if (following)
-                following.innerText = data.followingCount;
+                // We are on our own profile if there is no profile follow button
+                if (document.getElementById("profileFollowBtn") == null) {
+                    followers.innerText = data.myFollowers;
+                    following.innerText = data.myFollowing;
+                }
+                else {
+                    followers.innerText = data.targetFollowers;
+                    following.innerText = data.targetFollowing;
+                }
+            }
+
 
         });
 
@@ -195,8 +204,8 @@ if (profileFollowBtn) {
                 const followers = document.getElementById("followersCount");
                 const following = document.getElementById("followingCount");
 
-                const isOwn =
-                    profileFollowBtn.dataset.isOwnProfile === "true";
+
+                const isOwn = profileFollowBtn.dataset.isOwnProfile === "true";
 
                 if (isOwn) {
 

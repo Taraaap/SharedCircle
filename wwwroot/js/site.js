@@ -210,7 +210,7 @@ connection.on("ReceiveComment",
             .getElementById("comments-" + postId)
             .insertAdjacentHTML("beforeend", html);
 
-        let count = document.querySelector(
+        let count = document.querySelector( 
             `.comment-count[data-post-id='${postId}']`
         );
 
