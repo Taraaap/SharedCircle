@@ -1,37 +1,113 @@
-﻿<div class="row">
+﻿@{
+    ViewData["Title"] = "Messages";
+}
 
-    <div class="col-4 border-end">
+<div class="container-fluid py-3">
 
-        <h4>Chats</h4>
+    <div class="card shadow rounded-4 border-0">
 
-        <div id="conversationList">
-            No conversations
-        </div>
+        <div class="row g-0">
 
-    </div>
+            <!-- LEFT PANEL -->
 
-    <div class="col-8">
+            <div class="col-lg-4 border-end">
 
-        <h4>Messages</h4>
+                <div class="p-3 border-bottom">
 
-        <div id="messageList"
-             style="height:450px;overflow-y:auto;"
-             class="border rounded p-3 mb-3">
-        </div>
+                    <h4 class="fw-bold mb-3">
+                        Messages
+                    </h4>
 
-        <div class="input-group">
+                    <input id="searchUser"
+                           class="form-control rounded-pill"
+                           placeholder="Search people...">
 
-            <input id="messageInput"
-                   class="form-control"
-                   placeholder="Type a message..." />
+                </div>
 
-            <button id="sendBtn"
-                    class="btn btn-primary">
-                Send
-            </button>
+                <div id="userList"
+                     style="height:78vh;overflow-y:auto;">
 
+                    <!-- Users -->
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <!-- RIGHT PANEL -->
+
+            <div class="col-lg-8 d-flex flex-column">
+
+                <!-- Header -->
+
+                <div id="chatHeader"
+                     class="border-bottom bg-white p-3 d-flex align-items-center">
+
+                    <img id="chatUserImage"
+                         src="/images/default-profile.png"
+                         width="50"
+                         height="50"
+                         class="rounded-circle me-3"
+                         style="object-fit:cover;">
+
+                    <div>
+
+                        <div id="chatUserName"
+                             class="fw-bold fs-5">
+
+                            Select a conversation
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Messages -->
+
+                <div id="chatMessages"
+                     class="flex-grow-1 p-4"
+                     style="overflow-y:auto;background:#f5f7fb;min-height:550px;">
+
+                    <div class="text-center text-muted mt-5">
+
+                        Select someone to start chatting 💬
+
+                    </div>
+
+                </div>
+
+
+                <!-- Bottom -->
+
+                <div class="border-top bg-white p-3">
+
+                    <div class="input-group">
+
+                        <input 
+                               id="messageText "disabled
+                               class="form-control"
+                               placeholder="Type a message..."
+                               disabled />
+
+                        <button id="sendBtn"
+                                class="btn btn-primary"
+                                disabled>
+
+                            <i class="bi bi-send-fill"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
 
     </div>
 
 </div>
+
+<script src="~/js/chat.js"></script>
