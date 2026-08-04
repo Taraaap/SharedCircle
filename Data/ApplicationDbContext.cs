@@ -16,6 +16,12 @@ namespace SharedCircle.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Follow> Follows { get; set; }
 
+        public DbSet<Conversation> Conversations { get; set; }
+
+        public DbSet<ConversationMember> ConversationMembers { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
