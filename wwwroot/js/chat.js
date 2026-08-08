@@ -16,7 +16,7 @@
 
     const messageText = document.getElementById("messageText");
     const sendBtn = document.getElementById("sendBtn");
-
+    const messageBox = document.getElementById("messageBox");
 
    
 
@@ -128,13 +128,22 @@
                 currentConversationId = data.conversationId;
                 chatUserId = userId;
 
-               
                 chatUserName.textContent = userName;
                 chatUserImage.src = image;
+
+                chatHeader.style.display = "flex";
+                messageBox.style.display = "block";
+
+                
+                messageText.disabled = false;
+                sendBtn.disabled = false;
+
+                messageText.placeholder = "Type a message...";
 
                 
                 loadMessages(currentConversationId);
 
+                
                 messageText.focus();
 
             })

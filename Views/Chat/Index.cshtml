@@ -4,77 +4,91 @@
 
 <div class="container-fluid py-3">
 
-    <div class="card shadow rounded-4 border-0">
+    <div class="card shadow rounded-4 border-0 overflow-hidden">
 
         <div class="row g-0">
 
-            <!-- LEFT PANEL -->
+         
 
             <div class="col-lg-4 border-end">
 
+       
                 <div class="p-3 border-bottom">
 
                     <h4 class="fw-bold mb-3">
                         Messages
                     </h4>
 
-                    <input id="searchUser"
-                           class="form-control rounded-pill"
-                           placeholder="Search people...">
+                    <input id="searchUser" class="form-control rounded-pill" placeholder="Search people...">
 
                 </div>
 
-                <div id="userList"
-                     style="height:78vh;overflow-y:auto;">
-
-                    <!-- Users -->
+                <div id="userList" style="height:calc(100vh - 150px); overflow-y:auto;">
 
                 </div>
 
             </div>
 
-            <!-- RIGHT PANEL -->
-            <!-- RIGHT PANEL -->
 
-            <div class="col-lg-8 d-flex flex-column">
+            @* right panel*@
 
-                <!-- HEADER -->
-                <div id="chatHeader"
-                     class="border-bottom bg-white p-3 d-flex align-items-center">
+            <div class="col-lg-8 d-flex flex-column" style="height:calc(100vh - 90px);">
 
-                    <img id="chatUserImage"
-                         src="/images/default-profile.png"
-                         width="50"
-                         height="50"
+                
+
+                <div id="chatHeader"class="border-bottom bg-white px-4 py-3 align-items-center"
+                     style="cursor:pointer; min-height:75px; display:none;">
+
+                    <img id="chatUserImage" src="/images/default-profile.png"
+                         width="48"
+                         height="48"
                          class="rounded-circle me-3"
                          style="object-fit:cover;">
 
                     <div>
+
                         <div id="chatUserName"
                              class="fw-bold fs-5">
+
                             Select a conversation
+
                         </div>
+
+                        
+
                     </div>
 
                 </div>
 
-                <!-- MESSAGES -->
+
+                @* message area *@
+
                 <div id="chatMessages"
-                     class="flex-grow-1 p-3"
+                     class="flex-grow-1 px-4 py-3"
                      style="
                     overflow-y:auto;
-                    background:#f5f7fb;
-                    height:calc(100vh - 220px);
-                    ">
+                    background:#f5f7fb; ">
 
                     <div class="text-center text-muted mt-5">
-                        Select someone to start chatting 💬
+
+                        <div class="fs-1 mb-2">
+                            💬
+                        </div>
+
+                        <div>
+                            Select someone to start chatting
+                        </div>
+
                     </div>
 
                 </div>
 
-                <!-- MESSAGE BOX -->
-                <div class="border-top bg-white p-3">
+
+               @* message box *@
+
+                <div id="messageBox"
+                     class="border-top bg-white p-3"
+                     style="display:none;">
 
                     <div class="input-group">
 
@@ -97,13 +111,16 @@
                 </div>
 
             </div>
+        </div>
 
     </div>
 
 </div>
 
-    <script>
-            window.loggedInUserId = "@ViewBag.CurrentUserId";
-    </script>
 
-    <script src="~/js/chat.js"></script>
+
+<script>
+    window.loggedInUserId = "@ViewBag.CurrentUserId";
+</script>
+
+<script src="~/js/chat.js"></script>
