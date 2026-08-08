@@ -2,10 +2,41 @@
 
     let currentConversationId = 0;
     let chatUserId = "";
+    let connection = null;
+    let displayedMessageIds = new Set();
+
+    // signalR
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub")
+        .withAutomaticReconnect()
+        .build();
+
+    connection.on("ReceiveMessage", function (message) {
+
+        console.log("SIGNALR MESSAGE:", message);
+
+       
+        if (currentConversationId === 0) {
+            return;
+        }
+
+        addMessageToUI(message);
+
+        scrollMessages();
+    });
+
+    connection.start()
+        .then(() => {
+            console.log("🔥 SIGNALR CONNECTED");
+            console.log("Connection ID:", connection.connectionId);
+        })
+        .catch(error => {
+            console.error("SignalR Connection Error:", error);
+        });
 
     const loggedInUserId = String(window.loggedInUserId);
 
-    console.log("LOGGED IN USER ID:", loggedInUserId);
+   
 
     const userList = document.getElementById("userList");
     const searchUser = document.getElementById("searchUser");
@@ -121,7 +152,7 @@
                 return response.json();
 
             })
-            .then(data => {
+            .then(async data => {
 
                 console.log("Conversation ID:", data.conversationId);
 
@@ -145,6 +176,15 @@
 
                 
                 messageText.focus();
+
+                if (connection.state === "Connected") {
+
+                    await connection.invoke(
+                        "JoinConversation",
+                        currentConversationId.toString()
+                    );
+
+                }
 
             })
             .catch(error => {
@@ -181,25 +221,24 @@
 
                 chatMessages.innerHTML = "";
 
+                displayedMessageIds.clear();
+
                 if (messages.length === 0) {
 
                     chatMessages.innerHTML = `
-                    <div class="text-center text-muted mt-5">
-                        Start chatting 💬
-                    </div>
-                `;
+            <div class="text-center text-muted mt-5">
+                Start chatting 💬
+            </div>
+        `;
 
                     return;
                 }
 
                 messages.forEach(message => {
-
                     addMessageToUI(message);
-
                 });
 
                 scrollMessages();
-
             })
             .catch(error => {
 
@@ -281,93 +320,26 @@
     });
 
 
-    function sendMessage() {
-
-        console.log("SEND CLICKED");
-
-        if (currentConversationId === 0) {
-
-            alert("Select someone first.");
-
-            return;
-        }
-
-        const text = messageText.value.trim();
-
-        if (text === "")
-            return;
-
-        sendBtn.disabled = true;
-
-        fetch("/Chat/SendMessage", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded"
-            },
-
-            body:
-                "conversationId=" +
-                encodeURIComponent(currentConversationId) +
-                "&text=" +
-                encodeURIComponent(text)
-
-        })
-            .then(response => {
-
-                if (!response.ok)
-                    throw new Error(
-                        "Send message failed: " +
-                        response.status
-                    );
-
-                return response.json();
-
-            })
-            .then(message => {
-
-                console.log("MESSAGE SENT:", message);
-
-                addMessageToUI(message);
-
-                messageText.value = "";
-
-                scrollMessages();
-
-            })
-            .catch(error => {
-
-                console.error(
-                    "Send message error:",
-                    error
-                );
-
-            })
-            .finally(() => {
-
-                sendBtn.disabled = false;
-
-                messageText.focus();
-
-            });
-
-    }
-
   // MESSAGE UI
     
 
-function addMessageToUI(message) {
+    function addMessageToUI(message) {
+
+        if (displayedMessageIds.has(message.id)) {
+            console.log("Duplicate message ignored:", message.id);
+            return;
+        }
+
+        displayedMessageIds.add(message.id);
 
     const senderId = String(message.senderId);
     const myId = String(loggedInUserId);
 
     const isMine = senderId === myId;
 
-    console.log("Sender:", senderId);
-    console.log("Me:", myId);
-    console.log("Is mine:", isMine);
+    // console.log("Sender:", senderId);
+    // console.log("Me:", myId);
+    // console.log("Is mine:", isMine);
 
     const wrapper = document.createElement("div");
 

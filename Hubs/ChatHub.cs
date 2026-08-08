@@ -4,15 +4,20 @@ namespace SharedCircle.Hubs
 {
     public class ChatHub : Hub
     {
-        public async Task SendMessage(string receiverId, string senderName, string message)
+        public async Task JoinConversation(string conversationId)
         {
-            await Clients.User(receiverId)
-                .SendAsync("ReceiveMessage", senderName, message);
+            await Groups.AddToGroupAsync(
+                Context.ConnectionId,
+                conversationId
+            );
         }
 
-        public string GetConnectionId()
+        public async Task LeaveConversation(string conversationId)
         {
-            return Context.ConnectionId;
+            await Groups.RemoveFromGroupAsync(
+                Context.ConnectionId,
+                conversationId
+            );
         }
     }
 }

@@ -13,13 +13,16 @@ namespace SharedCircle.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHubContext<ChatHub> _chatHub;
 
         public ChatController(
             ApplicationDbContext db,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IHubContext<ChatHub> chatHub )
         {
             _db = db;
             _userManager = userManager;
+            _chatHub = chatHub;
         }
 
         public async Task<IActionResult> Index()
@@ -101,30 +104,23 @@ namespace SharedCircle.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> SendMessage(
-            int conversationId,
-            string text)
+    int conversationId,
+    string text)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
+            var sender = await _userManager.GetUserAsync(User);
 
-            if (currentUser == null)
+            if (sender == null)
                 return Unauthorized();
 
             if (string.IsNullOrWhiteSpace(text))
-                return BadRequest("Message is empty.");
-
-            var isMember = await _db.ConversationMembers
-                .AnyAsync(x =>
-                    x.ConversationId == conversationId &&
-                    x.UserId == currentUser.Id);
-
-            if (!isMember)
-                return Forbid();
+                return BadRequest();
 
             var message = new Message
             {
                 ConversationId = conversationId,
-                SenderId = currentUser.Id,
+                SenderId = sender.Id,
                 Text = text,
                 SentAt = DateTime.Now
             };
@@ -133,11 +129,22 @@ namespace SharedCircle.Controllers
 
             await _db.SaveChangesAsync();
 
-            return Json(new
+            await _chatHub.Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage",
+             new
+        {
+            id = message.Id,
+            senderId = sender.Id,
+            sender = sender.FullName,
+            text = message.Text,
+            time = message.SentAt.ToString("hh:mm tt")
+        }
+    );
+
+            return Ok(new
             {
                 id = message.Id,
-                senderId = currentUser.Id,
-                sender = currentUser.FullName,
+                senderId = sender.Id,
+                sender = sender.FullName,
                 text = message.Text,
                 time = message.SentAt.ToString("hh:mm tt")
             });
