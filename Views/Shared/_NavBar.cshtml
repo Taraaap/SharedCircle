@@ -82,13 +82,18 @@
             </li>
 
            @* chat *@
-            <li class="nav-item me-2">
+            <a asp-controller="Chat"
+               asp-action="Index"
+               class="nav-link position-relative px-2">
 
-                <a class="nav-link px-2" asp-controller="Chat" asp-action="Index">
-                    <i class="bi bi-chat-dots fs-5"></i>
-                </a>
+                <i class="bi bi-chat-dots fs-5"></i>
 
-            </li>
+                <span id="unreadMessageCount"
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                    0
+                </span>
+
+            </a>
 
            @* profile *@
             <li class="nav-item dropdown ms-2">

@@ -15,7 +15,6 @@
 
         console.log("SIGNALR MESSAGE:", message);
 
-       
         if (currentConversationId === 0) {
             return;
         }
@@ -299,9 +298,6 @@
             .then(message => {
 
                 console.log("MESSAGE SAVED:", message);
-
-                addMessageToUI(message);
-
                 messageText.value = "";
 
             })
@@ -337,9 +333,7 @@
 
     const isMine = senderId === myId;
 
-    // console.log("Sender:", senderId);
-    // console.log("Me:", myId);
-    // console.log("Is mine:", isMine);
+   
 
     const wrapper = document.createElement("div");
 

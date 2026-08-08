@@ -103,11 +103,13 @@ namespace SharedCircle.Controllers
             });
         }
 
+      
+        [HttpPost]
         [HttpPost]
         [HttpPost]
         public async Task<IActionResult> SendMessage(
-    int conversationId,
-    string text)
+         int conversationId,
+         string text)
         {
             var sender = await _userManager.GetUserAsync(User);
 
@@ -117,6 +119,18 @@ namespace SharedCircle.Controllers
             if (string.IsNullOrWhiteSpace(text))
                 return BadRequest();
 
+            // Find receiver
+            var receiverId = await _db.ConversationMembers
+                .Where(x =>
+                    x.ConversationId == conversationId &&
+                    x.UserId != sender.Id)
+                .Select(x => x.UserId)
+                .FirstOrDefaultAsync();
+
+            if (receiverId == null)
+                return BadRequest("Receiver not found.");
+
+            // Save message
             var message = new Message
             {
                 ConversationId = conversationId,
@@ -129,20 +143,35 @@ namespace SharedCircle.Controllers
 
             await _db.SaveChangesAsync();
 
-            await _chatHub.Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage",
-             new
-        {
-            id = message.Id,
-            senderId = sender.Id,
-            sender = sender.FullName,
-            text = message.Text,
-            time = message.SentAt.ToString("hh:mm tt")
-        }
-    );
+            await _chatHub.Clients
+                .Group(conversationId.ToString())
+                .SendAsync(
+                    "ReceiveMessage",
+                    new
+                    {
+                        id = message.Id,
+                        conversationId = message.ConversationId,
+                        senderId = sender.Id,
+                        sender = sender.FullName,
+                        text = message.Text,
+                        time = message.SentAt.ToString("hh:mm tt")
+                    }
+                );
+
+            await _chatHub.Clients
+                .User(receiverId)
+                .SendAsync(
+                    "UnreadMessage",
+                    new
+                    {
+                        conversationId = conversationId
+                    }
+                );
 
             return Ok(new
             {
                 id = message.Id,
+                conversationId = message.ConversationId,
                 senderId = sender.Id,
                 sender = sender.FullName,
                 text = message.Text,

@@ -222,4 +222,70 @@ connection.on("ReceiveComment",
     });
 
 
+// UNREAD CHAT COUNT
+// ==========================================
 
+const unreadConversations = new Set();
+
+function updateUnreadMessageCount() {
+
+    const badge = document.getElementById("unreadMessageCount");
+
+    if (!badge)
+        return;
+
+    const count = unreadConversations.size;
+
+    badge.innerText = count;
+
+    if (count === 0) {
+        badge.classList.add("d-none");
+    }
+    else {
+        badge.classList.remove("d-none");
+    }
+}
+
+
+// ==========================================
+// CHAT SIGNALR FOR UNREAD COUNT
+// ==========================================
+
+const unreadConnection =
+    new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub")
+        .withAutomaticReconnect()
+        .build();
+
+
+unreadConnection.on("UnreadMessage", function (data) {
+
+    console.log("UNREAD CHAT:", data);
+
+    const conversationId =
+        Number(data.conversationId);
+
+    if (!conversationId)
+        return;
+
+    unreadConversations.add(conversationId);
+
+    updateUnreadMessageCount();
+
+});
+
+
+unreadConnection.start()
+    .then(() => {
+
+        console.log("Unread Chat SignalR Connected");
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Unread Chat SignalR Error:",
+            error
+        );
+
+    });
