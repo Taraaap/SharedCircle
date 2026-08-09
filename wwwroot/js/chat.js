@@ -44,10 +44,23 @@
     const chatMessages = document.getElementById("chatMessages");
     const chatUserName = document.getElementById("chatUserName");
     const chatUserImage = document.getElementById("chatUserImage");
+    const chatHeader = document.getElementById("chatHeader"); 
 
     const messageText = document.getElementById("messageText");
     const sendBtn = document.getElementById("sendBtn");
     const messageBox = document.getElementById("messageBox");
+
+    chatUserImage.style.cursor = "pointer";
+    chatUserName.style.cursor = "pointer";
+
+    function goToProfile() {
+        if (chatUserId) {
+            window.location.href = "/Profile/ViewProfile?id=" + chatUserId;
+        }
+    }
+
+    chatUserImage.addEventListener("click", goToProfile);
+    chatUserName.addEventListener("click", goToProfile);
 
    
 
@@ -149,6 +162,20 @@
    
 
     userList.addEventListener("click", function (e) {
+
+        const avatarClick = e.target.closest("img");
+
+        if (avatarClick) {
+
+            const clickedUser = avatarClick.closest(".user-item");
+
+            if (clickedUser) {
+                const clickedUserId = clickedUser.dataset.userId;
+                window.location.href = "/Profile/ViewProfile?id=" + clickedUserId;
+            }
+
+            return;
+        }
 
         const user = e.target.closest(".user-item");
 
@@ -319,7 +346,6 @@
 
     sendBtn.addEventListener("click", function () {
 
-        // Prevent duplicate requests
         if (sendBtn.disabled) {
             return;
         }
@@ -335,7 +361,7 @@
             return;
         }
 
-        // Disable immediately
+      
         sendBtn.disabled = true;
 
         console.log("SENDING MESSAGE:", text);
@@ -435,7 +461,6 @@
     }
   // MESSAGE UI
     
-
     function addMessageToUI(message) {
 
         if (displayedMessageIds.has(message.id)) {
