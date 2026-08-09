@@ -1,5 +1,10 @@
-﻿const modal = new bootstrap.Modal(document.getElementById("followModal"));
+﻿let modal = null;
 
+const followModalEl = document.getElementById("followModal");
+
+if (followModalEl) {
+    modal = new bootstrap.Modal(followModalEl);
+}
 function loadFollowList(type, userId) {
 
     document.getElementById("followModalTitle").innerText = type;
@@ -91,26 +96,27 @@ function loadFollowList(type, userId) {
 
         });
 
-    modal.show();
+    if (modal) {
+        modal.show();
+    }
 }
 
-document.getElementById("followersBtn")
-    .addEventListener("click", function (e) {
+const followersBtn = document.getElementById("followersBtn");
+const followingBtn = document.getElementById("followingBtn");
 
+if (followersBtn) {
+    followersBtn.addEventListener("click", function (e) {
         e.preventDefault();
-
         loadFollowList("Followers", this.dataset.userId);
-
     });
+}
 
-document.getElementById("followingBtn")
-    .addEventListener("click", function (e) {
-
+if (followingBtn) {
+    followingBtn.addEventListener("click", function (e) {
         e.preventDefault();
-
         loadFollowList("Following", this.dataset.userId);
-
     });
+}
 
 document.addEventListener("click", function (e) {
 
