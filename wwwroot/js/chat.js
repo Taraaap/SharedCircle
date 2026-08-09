@@ -36,6 +36,8 @@
 
     const loggedInUserId = String(window.loggedInUserId);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUserId = urlParams.get("userId");
    
 
     const userList = document.getElementById("userList");
@@ -139,6 +141,14 @@
                 });
 
                 userList.innerHTML = html;
+                if (term === "" && targetUserId) {
+                    const targetEl = userList.querySelector(
+                        `.user-item[data-user-id="${targetUserId}"]`
+                    );
+                    if (targetEl) {
+                        targetEl.click();
+                    }
+                }
             })
             .catch(error => {
                 console.error("Load users error:", error);
