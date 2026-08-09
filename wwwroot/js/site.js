@@ -222,70 +222,97 @@ connection.on("ReceiveComment",
     });
 
 
-// UNREAD CHAT COUNT
-// ==========================================
 
-const unreadConversations = new Set();
 
-function updateUnreadMessageCount() {
+ // navbar
+// unread chat count
 
-    const badge = document.getElementById("unreadMessageCount");
+function loadUnreadMessageCount() {
 
+    const badge =
+        document.getElementById("unreadMessageCount");
+
+    
     if (!badge)
         return;
 
-    const count = unreadConversations.size;
+    fetch("/Chat/GetUnreadCount")
+        .then(response => {
 
-    badge.innerText = count;
+            if (!response.ok)
+                throw new Error("Failed to load unread count");
 
-    if (count === 0) {
-        badge.classList.add("d-none");
-    }
-    else {
-        badge.classList.remove("d-none");
-    }
+            return response.json();
+
+        })
+        .then(data => {
+
+            badge.innerText = data.count;
+
+            if (data.count === 0) {
+                badge.classList.add("d-none");
+            }
+            else {
+                badge.classList.remove("d-none");
+            }
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Unread count error:",
+                error
+            );
+
+        });
 }
 
 
-// ==========================================
-// CHAT SIGNALR FOR UNREAD COUNT
-// ==========================================
-
-const unreadConnection =
-    new signalR.HubConnectionBuilder()
-        .withUrl("/chatHub")
-        .withAutomaticReconnect()
-        .build();
 
 
-unreadConnection.on("UnreadMessage", function (data) {
+loadUnreadMessageCount();
 
-    console.log("UNREAD CHAT:", data);
+// unreadchat signalr
 
-    const conversationId =
-        Number(data.conversationId);
+if (typeof signalR !== "undefined") {
 
-    if (!conversationId)
-        return;
-
-    unreadConversations.add(conversationId);
-
-    updateUnreadMessageCount();
-
-});
+    const unreadConnection =
+        new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
 
 
-unreadConnection.start()
-    .then(() => {
+    unreadConnection.on(
+        "UnreadMessage",
+        function (data) {
 
-        console.log("Unread Chat SignalR Connected");
+            console.log(
+                "UNREAD CHAT:",
+                data
+            );
 
-    })
-    .catch(error => {
+            loadUnreadMessageCount();
 
-        console.error(
-            "Unread Chat SignalR Error:",
-            error
-        );
+        }
+    );
 
-    });
+
+    unreadConnection.start()
+        .then(() => {
+
+            console.log(
+                "Unread Chat SignalR Connected"
+            );
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Unread Chat SignalR Error:",
+                error
+            );
+
+        });
+
+}

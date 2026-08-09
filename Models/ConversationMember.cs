@@ -11,4 +11,9 @@ public class ConversationMember
     public string UserId { get; set; }
 
     public ApplicationUser User { get; set; }
+
+    public int? LastReadMessageId { get; set; }
+    public int UnreadCount { get; set; } = 0;
+
+
 }

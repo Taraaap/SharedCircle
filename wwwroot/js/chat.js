@@ -66,31 +66,53 @@
                         user.profileImage ||
                         "/images/default-profile.png";
 
+                    const isUnread = (user.unreadCount || 0) > 0;
+
+                    const lastMessage =
+                        user.lastMessage ||
+                        "Click to chat";
+                    const unreadClass =
+                        isUnread
+                            ? "fw-bold text-dark"
+                            : "text-muted";
+
+                    const unreadBadge =
+                        isUnread
+                            ? `<span class="unread-badge badge bg-danger rounded-pill ms-auto">${user.unreadCount}</span>`
+                            : `<span class="unread-badge badge bg-danger rounded-pill ms-auto d-none">0</span>`;
+
+                  
+
                     html += `
-                        <div class="d-flex align-items-center p-3 border-bottom user-item"
-                             data-user-id="${user.id}"
-                             data-name="${user.fullName}"
-                             data-image="${image}"
-                             style="cursor:pointer;">
+    <div class="d-flex align-items-center p-3 border-bottom user-item"
+         data-user-id="${user.id}"
+         data-name="${user.fullName}"
+         data-image="${image}"
+         data-conversation-id="${user.conversationId || 0}"
+         style="cursor:pointer;">
 
-                            <img src="${image}"
-                                 width="50"
-                                 height="50"
-                                 class="rounded-circle me-3"
-                                 style="object-fit:cover;">
+        <img src="${image}"
+             width="50"
+             height="50"
+             class="rounded-circle me-3"
+             style="object-fit:cover;">
 
-                            <div>
-                                <div class="fw-semibold">
-                                    ${user.fullName}
-                                </div>
+        <div class="flex-grow-1">
 
-                                <small class="text-muted">
-                                    Click to chat
-                                </small>
-                            </div>
+            <div class="fw-semibold">
+                ${escapeHtml(user.fullName)}
+            </div>
 
-                        </div>
-                    `;
+            <small class="last-message ${unreadClass}">
+                ${escapeHtml(lastMessage)}
+            </small>
+
+        </div>
+
+        ${unreadBadge}
+
+    </div>
+`;
                 });
 
                 userList.innerHTML = html;
@@ -157,6 +179,37 @@
 
                 currentConversationId = data.conversationId;
                 chatUserId = userId;
+
+                await fetch("/Chat/MarkAsRead", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body:
+                        "conversationId=" +
+                        encodeURIComponent(currentConversationId)
+                });
+                
+                loadUnreadMessageCount();
+
+                // Remove THIS user's badge
+                const selectedBadge =
+                    user.querySelector(".unread-badge");
+
+                if (selectedBadge) {
+                    selectedBadge.innerText = "0";
+                    selectedBadge.classList.add("d-none");
+                }
+
+                // Make latest message normal
+                const lastMessage =
+                    user.querySelector(".last-message");
+
+                if (lastMessage) {
+                    lastMessage.classList.remove("fw-bold");
+                    lastMessage.classList.remove("text-dark");
+                    lastMessage.classList.add("text-muted");
+                }
 
                 chatUserName.textContent = userName;
                 chatUserImage.src = image;
@@ -298,7 +351,12 @@
             .then(message => {
 
                 console.log("MESSAGE SAVED:", message);
+
+                addMessageToUI(message);
+
                 messageText.value = "";
+
+                updateLastMessage(message.text);
 
             })
             .catch(error => {
@@ -389,3 +447,34 @@
     }
 
 });
+
+// update message
+function updateLastMessage(text) {
+
+    const users = document.querySelectorAll(".user-item");
+
+    users.forEach(user => {
+        const image = user.profileImage || "/images/default-profile.png";
+        const isUnread = user.unreadCount > 0;
+        const lastMessage = user.lastMessage || "Click to chat";
+
+        html += `
+    <div class="d-flex align-items-center p-3 border-bottom user-item"
+         data-user-id="${user.id}"
+         data-name="${user.fullName}"
+         data-image="${image}"
+         data-conversation-id="${user.conversationId || 0}"
+         style="cursor:pointer;">
+        <img src="${image}" width="50" height="50" class="rounded-circle me-3" style="object-fit:cover;">
+        <div class="flex-grow-1">
+            <div class="fw-semibold">${escapeHtml(user.fullName)}</div>
+            <small class="last-message ${isUnread ? 'fw-bold text-dark' : 'text-muted'}">
+                ${escapeHtml(lastMessage)}
+            </small>
+        </div>
+        <span class="unread-badge badge rounded-pill bg-danger ms-auto ${isUnread ? '' : 'd-none'}">
+            ${user.unreadCount || 0}
+        </span>
+    </div>`;
+    });
+}

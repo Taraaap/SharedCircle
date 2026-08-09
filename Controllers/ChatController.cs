@@ -33,7 +33,8 @@ namespace SharedCircle.Controllers
 
             return View();
         }
-
+       
+       
         [HttpGet]
         public async Task<IActionResult> SearchUsers(string term)
         {
@@ -51,11 +52,66 @@ namespace SharedCircle.Controllers
                 {
                     id = x.Id,
                     fullName = x.FullName,
-                    profileImage = x.ProfileImage
+                    profileImage = x.ProfileImage,
+
+                    conversationId = _db.ConversationMembers
+                        .Where(cm =>
+                            cm.UserId == x.Id &&
+                            _db.ConversationMembers.Any(cm2 =>
+                                cm2.ConversationId == cm.ConversationId &&
+                                cm2.UserId == currentUser.Id))
+                        .Select(cm => cm.ConversationId)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
 
-            return Json(users);
+            var result = new List<object>();
+
+            foreach (var user in users)
+            {
+                var currentMember = await _db.ConversationMembers
+                    .FirstOrDefaultAsync(cm =>
+                        cm.ConversationId == user.conversationId &&
+                        cm.UserId == currentUser.Id);
+
+                var lastReadMessageId =
+                    currentMember?.LastReadMessageId ?? 0;
+
+                var lastMessage = await _db.Messages
+                    .Where(m => m.ConversationId == user.conversationId)
+                    .OrderByDescending(m => m.Id)
+                    .Select(m => new
+                    {
+                        m.Id,
+                        m.Text,
+                        m.SenderId,
+                        m.SentAt
+                    })
+                    .FirstOrDefaultAsync();
+
+                var unreadCount = await _db.Messages
+                    .CountAsync(m =>
+                        m.ConversationId == user.conversationId &&
+                        m.Id > lastReadMessageId &&
+                        m.SenderId != currentUser.Id);
+
+                result.Add(new
+                {
+                    user.id,
+                    user.fullName,
+                    user.profileImage,
+
+                    conversationId = user.conversationId,
+
+                    lastMessage = lastMessage?.Text,
+                    lastMessageSenderId = lastMessage?.SenderId,
+                    lastMessageTime = lastMessage?.SentAt,
+
+                    unreadCount = unreadCount
+                });
+            }
+
+            return Json(result);
         }
 
         [HttpPost]
@@ -104,8 +160,7 @@ namespace SharedCircle.Controllers
         }
 
       
-        [HttpPost]
-        [HttpPost]
+       
         [HttpPost]
         public async Task<IActionResult> SendMessage(
          int conversationId,
@@ -119,7 +174,7 @@ namespace SharedCircle.Controllers
             if (string.IsNullOrWhiteSpace(text))
                 return BadRequest();
 
-            // Find receiver
+            
             var receiverId = await _db.ConversationMembers
                 .Where(x =>
                     x.ConversationId == conversationId &&
@@ -130,7 +185,7 @@ namespace SharedCircle.Controllers
             if (receiverId == null)
                 return BadRequest("Receiver not found.");
 
-            // Save message
+           
             var message = new Message
             {
                 ConversationId = conversationId,
@@ -141,7 +196,18 @@ namespace SharedCircle.Controllers
 
             _db.Messages.Add(message);
 
-            await _db.SaveChangesAsync();
+            var receiver = await _db.ConversationMembers
+     .Where(cm =>
+         cm.ConversationId == conversationId &&
+         cm.UserId != sender.Id)
+     .FirstOrDefaultAsync();
+
+            if (receiver != null)
+            {
+                receiver.UnreadCount++;
+
+                await _db.SaveChangesAsync();
+            }
 
             await _chatHub.Clients
                 .Group(conversationId.ToString())
@@ -209,6 +275,52 @@ namespace SharedCircle.Controllers
                 .ToListAsync();
 
             return Json(messages);
+        }
+
+        [HttpPost]
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead(int conversationId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Unauthorized();
+
+            var member = await _db.ConversationMembers
+                .FirstOrDefaultAsync(cm =>
+                    cm.ConversationId == conversationId &&
+                    cm.UserId == currentUser.Id);
+
+            if (member == null) return Forbid();
+
+            var lastMessageId = await _db.Messages
+                .Where(m => m.ConversationId == conversationId)
+                .OrderByDescending(m => m.Id)
+                .Select(m => m.Id)
+                .FirstOrDefaultAsync();
+
+            member.LastReadMessageId = lastMessageId;
+            member.UnreadCount = 0;
+
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+                return Unauthorized();
+
+            var count = await _db.ConversationMembers
+                .CountAsync(x =>
+                    x.UserId == currentUser.Id &&
+                    x.UnreadCount > 0);
+
+            return Json(new
+            {
+                count
+            });
         }
     }
 }
