@@ -4,6 +4,7 @@
     let chatUserId = "";
     let connection = null;
     let displayedMessageIds = new Set();
+    let lastMessageDate = null; 
 
     // signalR
     connection = new signalR.HubConnectionBuilder()
@@ -61,6 +62,7 @@
                 let html = "";
 
                 users.forEach(user => {
+                    const loggedInUserIdStr = String(loggedInUserId);
 
                     const image =
                         user.profileImage ||
@@ -71,6 +73,14 @@
                     const lastMessage =
                         user.lastMessage ||
                         "Click to chat";
+
+                    const lastMessagePreview =
+                        user.lastMessage
+                            ? (String(user.lastMessageSenderId) === loggedInUserIdStr
+                                ? "You: " + user.lastMessage
+                                : user.fullName + ": " + user.lastMessage)
+                            : "Click to chat";
+
                     const unreadClass =
                         isUnread
                             ? "fw-bold text-dark"
@@ -104,8 +114,8 @@
             </div>
 
             <small class="last-message ${unreadClass}">
-                ${escapeHtml(lastMessage)}
-            </small>
+    ${escapeHtml(lastMessagePreview)}
+</small>
 
         </div>
 
@@ -192,7 +202,7 @@
                 
                 loadUnreadMessageCount();
 
-                // Remove THIS user's badge
+               
                 const selectedBadge =
                     user.querySelector(".unread-badge");
 
@@ -201,7 +211,7 @@
                     selectedBadge.classList.add("d-none");
                 }
 
-                // Make latest message normal
+                
                 const lastMessage =
                     user.querySelector(".last-message");
 
@@ -274,6 +284,7 @@
                 chatMessages.innerHTML = "";
 
                 displayedMessageIds.clear();
+                lastMessageDate = null;
 
                 if (messages.length === 0) {
 
@@ -356,7 +367,7 @@
 
                 messageText.value = "";
 
-                updateLastMessage(message.text);
+                loadUsers(searchUser.value);
 
             })
             .catch(error => {
@@ -374,6 +385,54 @@
     });
 
 
+    // helper
+    function formatDateLabel(date) {
+
+        const now = new Date();
+
+        const msgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        if (msgDay.getTime() === today.getTime()) return "Today";
+        if (msgDay.getTime() === yesterday.getTime()) return "Yesterday";
+
+        return date.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+    }
+
+    function addDateDividerIfNeeded(sentAt) {
+
+        if (!sentAt) return;
+
+        const msgDate = new Date(sentAt);
+        const label = formatDateLabel(msgDate);
+
+        if (lastMessageDate === label) return; 
+
+        lastMessageDate = label;
+
+        const divider = document.createElement("div");
+        divider.style.textAlign = "center";
+        divider.style.margin = "14px 0";
+
+        divider.innerHTML = `
+        <span style="
+            background:#e4e6eb;
+            color:#555;
+            font-size:12px;
+            padding:4px 12px;
+            border-radius:12px;
+        ">${label}</span>
+    `;
+
+        chatMessages.appendChild(divider);
+    }
   // MESSAGE UI
     
 
@@ -385,6 +444,7 @@
         }
 
         displayedMessageIds.add(message.id);
+        addDateDividerIfNeeded(message.sentAt);
 
     const senderId = String(message.senderId);
     const myId = String(loggedInUserId);
@@ -448,33 +508,3 @@
 
 });
 
-// update message
-function updateLastMessage(text) {
-
-    const users = document.querySelectorAll(".user-item");
-
-    users.forEach(user => {
-        const image = user.profileImage || "/images/default-profile.png";
-        const isUnread = user.unreadCount > 0;
-        const lastMessage = user.lastMessage || "Click to chat";
-
-        html += `
-    <div class="d-flex align-items-center p-3 border-bottom user-item"
-         data-user-id="${user.id}"
-         data-name="${user.fullName}"
-         data-image="${image}"
-         data-conversation-id="${user.conversationId || 0}"
-         style="cursor:pointer;">
-        <img src="${image}" width="50" height="50" class="rounded-circle me-3" style="object-fit:cover;">
-        <div class="flex-grow-1">
-            <div class="fw-semibold">${escapeHtml(user.fullName)}</div>
-            <small class="last-message ${isUnread ? 'fw-bold text-dark' : 'text-muted'}">
-                ${escapeHtml(lastMessage)}
-            </small>
-        </div>
-        <span class="unread-badge badge rounded-pill bg-danger ms-auto ${isUnread ? '' : 'd-none'}">
-            ${user.unreadCount || 0}
-        </span>
-    </div>`;
-    });
-}

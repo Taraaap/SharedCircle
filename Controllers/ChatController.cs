@@ -220,7 +220,8 @@ namespace SharedCircle.Controllers
                         senderId = sender.Id,
                         sender = sender.FullName,
                         text = message.Text,
-                        time = message.SentAt.ToString("hh:mm tt")
+                        time = message.SentAt.ToString("hh:mm tt"),
+                        sentAt = message.SentAt
                     }
                 );
 
@@ -241,7 +242,8 @@ namespace SharedCircle.Controllers
                 senderId = sender.Id,
                 sender = sender.FullName,
                 text = message.Text,
-                time = message.SentAt.ToString("hh:mm tt")
+                time = message.SentAt.ToString("hh:mm tt"),
+                sentAt = message.SentAt
             });
         }
 
@@ -270,7 +272,9 @@ namespace SharedCircle.Controllers
                     senderId = x.SenderId,
                     sender = x.Sender!.FullName,
                     text = x.Text,
-                    time = x.SentAt.ToString("hh:mm tt")
+                    time = x.SentAt.ToString("hh:mm tt"),
+                    sentAt = x.SentAt
+
                 })
                 .ToListAsync();
 
