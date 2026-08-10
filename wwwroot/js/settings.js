@@ -1,6 +1,6 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
 
-    // ===== DARK MODE =====
+    
     const toggle = document.getElementById("darkModeToggle");
 
     if (toggle) {
@@ -15,7 +15,7 @@
         });
     }
 
-    // ===== CHANGE PASSWORD =====
+  
     const form = document.getElementById("changePasswordForm");
 
     if (form) {
