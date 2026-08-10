@@ -36,6 +36,7 @@ namespace SharedCircle.Controllers
        
        
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> SearchUsers(string term)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -43,7 +44,7 @@ namespace SharedCircle.Controllers
             if (currentUser == null)
                 return Unauthorized();
 
-            var users = await _db.Users
+            var query = _db.Users
                 .Where(x =>
                     x.Id != currentUser.Id &&
                     (string.IsNullOrEmpty(term) ||
@@ -62,8 +63,17 @@ namespace SharedCircle.Controllers
                                 cm2.UserId == currentUser.Id))
                         .Select(cm => cm.ConversationId)
                         .FirstOrDefault()
-                })
-                .ToListAsync();
+                });
+
+           
+            if (string.IsNullOrEmpty(term))
+            {
+                query = query.Where(x =>
+                    x.conversationId != 0 &&
+                    _db.Messages.Any(m => m.ConversationId == x.conversationId));
+            }
+
+            var users = await query.ToListAsync();
 
             var result = new List<object>();
 
