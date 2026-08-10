@@ -141,12 +141,20 @@
                 });
 
                 userList.innerHTML = html;
+
+                // Auto-open chat if we arrived from a profile page (?userId=...)
                 if (term === "" && targetUserId) {
+
                     const targetEl = userList.querySelector(
                         `.user-item[data-user-id="${targetUserId}"]`
                     );
+
                     if (targetEl) {
+                        // Already in the sidebar (existing conversation) — just click it
                         targetEl.click();
+                    } else {
+                        // No conversation yet — fetch their info and open the chat directly
+                        openChatWithUser(targetUserId);
                     }
                 }
             })
@@ -155,7 +163,55 @@
             });
     }
 
+    function openChatWithUser(userId) {
 
+        fetch("/Chat/GetUserInfo?id=" + encodeURIComponent(userId))
+            .then(response => {
+                if (!response.ok) throw new Error("User not found");
+                return response.json();
+            })
+            .then(user => {
+
+                fetch("/Chat/StartConversation", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "userId=" + encodeURIComponent(userId)
+                })
+                    .then(response => response.json())
+                    .then(async data => {
+
+                        currentConversationId = data.conversationId;
+                        chatUserId = userId;
+
+                        chatUserName.textContent = user.fullName;
+                        chatUserImage.src = user.profileImage || "/images/default-profile.png";
+
+                        chatHeader.style.display = "flex";
+                        messageBox.style.display = "block";
+
+                        messageText.disabled = false;
+                        sendBtn.disabled = false;
+                        messageText.placeholder = "Type a message...";
+
+                        loadMessages(currentConversationId);
+
+                        messageText.focus();
+
+                        if (connection.state === "Connected") {
+                            await connection.invoke(
+                                "JoinConversation",
+                                currentConversationId.toString()
+                            );
+                        }
+
+                    })
+                    .catch(error => console.error("Start conversation error:", error));
+
+            })
+            .catch(error => console.error("Get user info error:", error));
+    }
     
     // SEARCH
    

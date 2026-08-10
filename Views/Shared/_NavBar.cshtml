@@ -95,16 +95,15 @@
 
             </a>
 
-           @* profile *@
-            <li class="nav-item dropdown ms-2">
+        
+            @* profile *@
+            <li class="nav-item ms-2">
 
-                <a class="nav-link dropdown-toggle d-flex align-items-center"
-                   href="#"
-                   data-bs-toggle="dropdown">
+                <a class="nav-link d-flex align-items-center"
+                   asp-controller="Profile"
+                   asp-action="Index">
 
-                    <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage)
-                                                        ? "/images/default-profile.png"
-                                                        : currentUser.ProfileImage)"
+                    <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage)  ? "/images/default-profile.png" : currentUser.ProfileImage)"
                          width="38"
                          height="38"
                          class="rounded-circle me-2"
@@ -113,21 +112,6 @@
                     <span class="fw-semibold">@currentUser?.FullName</span>
 
                 </a>
-
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-
-                    <li>
-                        <a asp-controller="Profile"
-                           asp-action="Index"
-                           class="dropdown-item">
-
-                            <i class="bi bi-person me-2"></i>
-                            Profile
-
-                        </a>
-                    </li>
-
-                </ul>
 
             </li>
 

@@ -336,5 +336,27 @@ namespace SharedCircle.Controllers
                 count
             });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserInfo(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var user = await _db.Users
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    id = u.Id,
+                    fullName = u.FullName,
+                    profileImage = u.ProfileImage
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return NotFound();
+
+            return Json(user);
+        }
     }
 }
