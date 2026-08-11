@@ -1,0 +1,406 @@
+﻿@model SharedCircle.ViewModels.AdminUserDetailsVM
+
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <a asp-controller="Admin"
+       asp-action="Users"
+       class="text-decoration-none text-muted">
+
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Users
+
+    </a>
+
+</div>
+
+
+<div class="row g-4">
+
+ 
+
+    <div class="col-lg-4">
+
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body text-center p-4">
+
+                <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@Model.Id" class="text-decoration-none">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfileImage) ? "/images/default-profile.png" : Model.ProfileImage)"
+                         class="rounded-circle mb-3"
+                         width="120"
+                         height="120"
+                         style="object-fit:cover;" />
+                </a>
+
+                <h4 class="fw-semibold mb-1">
+                    <a asp-controller="Profile" asp-action="ViewProfile" asp-route-id="@Model.Id"
+                       class="text-decoration-none text-dark">
+                        @(string.IsNullOrWhiteSpace(Model.FullName)
+                            ? "No name"
+                            : Model.FullName)
+                    </a>
+                </h4>
+
+                <p class="text-muted mb-3">
+                    @Model.Email
+                </p>
+
+
+                @if (Model.Role == "Admin")
+                {
+                    <span class="badge bg-primary rounded-pill px-3">
+                        Admin
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary rounded-pill px-3">
+                        User
+                    </span>
+                }
+
+                <hr />
+
+                <div class="text-start">
+
+                    <div class="text-muted small mb-1">
+                        Joined
+                    </div>
+
+                    <div class="fw-semibold mb-3">
+                        @Model.JoinDate.ToString("MMMM dd, yyyy")
+                    </div>
+
+
+                    <div class="text-muted small mb-1">
+                        Username
+                    </div>
+
+                    <div class="fw-semibold mb-3">
+                        @Model.UserName
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+    <div class="col-lg-8">
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+            <div class="card-body p-4">
+
+                <h5 class="fw-semibold mb-4">
+                    Account Information
+                </h5>
+
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <label class="text-muted small">
+                            Full Name
+                        </label>
+
+                        <div class="fw-semibold">
+                            @(Model.FullName ?? "Not provided")
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="text-muted small">
+                            Email
+                        </label>
+
+                        <div class="fw-semibold">
+                            @Model.Email
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="text-muted small">
+                            Role
+                        </label>
+
+                        <div>
+
+                            @if (Model.Role == "Admin")
+                            {
+                                <span class="badge bg-primary">
+                                    Admin
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    User
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="text-muted small">
+                            Account Status
+                        </label>
+
+                        <div>
+
+                            @if (Model.IsLocked)
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-lock me-1"></i>
+                                    Locked
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Active
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="text-muted small">
+                            Total Posts
+                        </label>
+
+                        <div class="fw-semibold">
+                            @Model.PostCount
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+     
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+            <div class="card-body p-4">
+
+                <h5 class="fw-semibold mb-3">
+                    Bio
+                </h5>
+
+                @if (string.IsNullOrWhiteSpace(Model.Bio))
+                {
+                    <p class="text-muted mb-0">
+                        No bio provided.
+                    </p>
+                }
+                else
+                {
+                    <p class="mb-0">
+                        @Model.Bio
+                    </p>
+                }
+
+            </div>
+
+        </div>
+
+
+ 
+
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body p-4">
+
+                <h5 class="fw-semibold mb-4">
+                    Account Management
+                </h5>
+
+                <div class="d-flex justify-content-between
+                    align-items-center border-bottom pb-3 mb-3">
+
+                    <div>
+
+                        <div class="fw-semibold">
+                            Change Role
+                        </div>
+
+                        <div class="text-muted small">
+                            Change this user's platform permissions.
+                        </div>
+
+                    </div>
+
+                    <form asp-controller="Admin"
+                          asp-action="ChangeRole"
+                          method="post"
+                          class="d-flex gap-2">
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.Id" />
+
+                        <select name="role"
+                                class="form-select">
+
+                            @if (Model.Role == "User")
+                            {
+                                <option value="User" selected>User</option>
+                                <option value="Admin">Admin</option>
+                            }
+                            else
+                            {
+                                <option value="User">User</option>
+                                <option value="Admin" selected>Admin</option>
+                            }
+
+                        </select>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Save
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+       
+
+                <div class="d-flex justify-content-between
+                    align-items-center border-bottom pb-3 mb-3">
+
+                    <div>
+
+                        <div class="fw-semibold">
+                            Account Status
+                        </div>
+
+                        <div class="text-muted small">
+                            Lock or unlock this account.
+                        </div>
+
+                    </div>
+
+                    @if (Model.IsLocked)
+                    {
+                        <form asp-controller="Admin"
+                              asp-action="UnlockUser"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-success">
+
+                                <i class="bi bi-unlock me-1"></i>
+                                Unlock
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Admin"
+                              asp-action="LockUser"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-warning">
+
+                                <i class="bi bi-lock me-1"></i>
+                                Lock
+
+                            </button>
+
+                        </form>
+                    }
+
+                </div>
+
+
+          
+
+                <div class="d-flex justify-content-between
+                    align-items-center">
+
+                    <div>
+
+                        <div class="fw-semibold text-danger">
+                            Delete Account
+                        </div>
+
+                        <div class="text-muted small">
+                            Permanently remove this user.
+                        </div>
+
+                    </div>
+
+                    <form asp-controller="Admin"
+                          asp-action="DeleteUser"
+                          method="post"
+                          onsubmit="return confirm('Are you sure you want to permanently delete this user?');">
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.Id" />
+
+                        <button type="submit"
+                                class="btn btn-outline-danger">
+
+                            <i class="bi bi-trash me-1"></i>
+                            Delete
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

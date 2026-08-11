@@ -1,0 +1,41 @@
+﻿@using SharedCircle.ViewModels
+@model AdminDashboardVM
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<h4 class="fw-semibold mb-1" style="color:#2b2d33;">Welcome back! 👋</h4>
+<p class="text-muted mb-4">Here's what's happening on SharedCircle.</p>
+
+<div class="row g-3">
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 admin-stat-card">
+            <div class="fs-3 fw-semibold" style="color:#2b2d33;">@Model.TotalUsers</div>
+            <div class="text-muted small">Users</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 admin-stat-card">
+            <div class="fs-3 fw-semibold" style="color:#2b2d33;">@Model.TotalPosts</div>
+            <div class="text-muted small">Posts</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 admin-stat-card">
+            <div class="fs-3 fw-semibold" style="color:#2b2d33;">@Model.TotalComments</div>
+            <div class="text-muted small">Comments</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 admin-stat-card">
+            <div class="fs-3 fw-semibold" style="color:#2b2d33;">@Model.TotalFollows</div>
+            <div class="text-muted small">Follows</div>
+        </div>
+    </div>
+
+</div>

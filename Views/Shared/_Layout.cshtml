@@ -69,7 +69,8 @@
                 @* rigth *@
                 @if (ViewContext.RouteData.Values["Controller"]?.ToString() != "Profile" &&
                      ViewContext.RouteData.Values["Controller"]?.ToString() != "Chat" &&
-                ViewContext.RouteData.Values["Controller"]?.ToString() != "Settings")
+                ViewContext.RouteData.Values["Controller"]?.ToString() != "Settings" &&
+                ViewContext.RouteData.Values["Controller"]?.ToString() != "Admin")
                 {
                     <div class="col-lg-3">
 
