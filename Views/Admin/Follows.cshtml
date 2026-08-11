@@ -1,0 +1,245 @@
+﻿@model SharedCircle.ViewModels.AdminFollowOverviewVM
+@{
+    ViewData["Title"] = "Follows Overview";
+    Layout = "_AdminLayout";
+}
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="mb-3">
+
+            <h5 class="fw-semibold mb-1">
+                Most Followed Users
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Users with the highest number of followers.
+            </p>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr class="text-muted small text-uppercase">
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Followers
+                        </th>
+
+                        <th>
+                            Following
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @{
+                        int rank = 1;
+                    }
+
+                    @foreach (var user in Model.MostFollowedUsers)
+                    {
+                        <tr>
+
+                            <td class="fw-semibold">
+                                @rank
+                            </td>
+
+                            <td>
+
+                                <div class="d-flex align-items-center">
+
+                                    <img src="@(string.IsNullOrEmpty(user.ProfileImage)
+                                                                            ? "/images/default-profile.png"
+                                                                            : user.ProfileImage)"
+                                         width="40"
+                                         height="40"
+                                         class="rounded-circle me-2"
+                                         style="object-fit:cover;">
+
+                                    <span class="fw-semibold">
+                                        @user.FullName
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <span class="fw-semibold">
+                                    @user.FollowerCount
+                                </span>
+
+                            </td>
+
+                            <td class="text-muted">
+                                @user.FollowingCount
+                            </td>
+
+                        </tr>
+
+                        rank++;
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+
+    <div class="card-body p-4">
+
+        <div class="mb-3">
+
+            <h5 class="fw-semibold mb-1">
+                Follow Relationships
+            </h5>
+
+            <p class="text-muted small mb-0">
+                View who follows whom.
+            </p>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr class="text-muted small text-uppercase">
+
+                        <th>
+                            Follower
+                        </th>
+
+                        <th>
+                            Following
+                        </th>
+
+                        <th>
+                            Relationship
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @if (!Model.Relationships.Any())
+                    {
+                        <tr>
+
+                            <td colspan="3"
+                                class="text-center text-muted py-5">
+
+                                <i class="bi bi-people fs-1 d-block mb-2"></i>
+
+                                No follow relationships found.
+
+                            </td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var follow in Model.Relationships)
+                        {
+                            <tr>
+
+                            
+                                <td>
+
+                                    <div class="d-flex align-items-center">
+
+                                        <img src="@(string.IsNullOrEmpty(follow.FollowerImage)
+                                                                                    ? "/images/default-profile.png"
+                                                                                    : follow.FollowerImage)"
+                                             width="38"
+                                             height="38"
+                                             class="rounded-circle me-2"
+                                             style="object-fit:cover;">
+
+                                        <span class="fw-semibold">
+                                            @follow.FollowerName
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                             
+                                <td>
+
+                                    <div class="d-flex align-items-center">
+
+                                        <img src="@(string.IsNullOrEmpty(follow.FollowingImage)
+                                                                                    ? "/images/default-profile.png"
+                                                                                    : follow.FollowingImage)"
+                                             width="38"
+                                             height="38"
+                                             class="rounded-circle me-2"
+                                             style="object-fit:cover;">
+
+                                        <span class="fw-semibold">
+                                            @follow.FollowingName
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                             
+                                <td>
+
+                                    <span class="badge bg-light text-dark px-3 py-2">
+                                        <i class="bi bi-person-plus me-1"></i>
+                                        Following
+                                    </span>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

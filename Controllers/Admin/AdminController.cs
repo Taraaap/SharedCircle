@@ -36,6 +36,7 @@ namespace SharedCircle.Controllers
         }
 
 
+    //user
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users
@@ -360,5 +361,224 @@ namespace SharedCircle.Controllers
             return RedirectToAction(nameof(Users));
         }
 
+
+
+
+        //post
+
+        public async Task<IActionResult> Posts(string term)
+        {
+            var query = _db.UserPosts
+                .Include(p => p.User)
+                .Where(p =>
+                    string.IsNullOrEmpty(term) ||
+                    p.Caption.Contains(term) ||
+                    p.User.FullName.Contains(term));
+
+            var posts = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new AdminPostVM
+                {
+                    Id = p.Id,
+                    Caption = p.Caption,
+                    ImageUrl = p.ImageUrl,
+                    CreatedAt = p.CreatedAt,
+                    AuthorId = p.UserId,
+                    AuthorName = p.User.FullName,
+                    AuthorEmail = p.User.Email!,
+                    AuthorImage = p.User.ProfileImage,
+                    CommentCount = _db.Comments.Count(c => c.PostId == p.Id),
+                    LikeCount = _db.Likes.Count(l => l.PostId == p.Id)
+                })
+                .ToListAsync();
+
+            ViewBag.SearchTerm = term;
+
+            return View(posts);
+        }
+
+        public async Task<IActionResult> PostDetails(int id)
+        {
+            var post = await _db.UserPosts
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post == null)
+                return NotFound();
+
+            var vm = new AdminPostVM
+            {
+                Id = post.Id,
+                Caption = post.Caption,
+                ImageUrl = post.ImageUrl,
+                CreatedAt = post.CreatedAt,
+                AuthorId = post.UserId,
+                AuthorName = post.User.FullName,
+                AuthorEmail = post.User.Email!,
+                AuthorImage = post.User.ProfileImage,
+                CommentCount = await _db.Comments.CountAsync(c => c.PostId == id),
+                LikeCount = await _db.Likes.CountAsync(l => l.PostId == id)
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int id)
+        {
+            var post = await _db.UserPosts.FindAsync(id);
+
+            if (post == null)
+            {
+                TempData["error"] = "Post not found.";
+                return RedirectToAction("Posts");
+            }
+
+           
+            var likes = await _db.Likes
+                .Where(l => l.PostId == id)
+                .ToListAsync();
+
+            _db.Likes.RemoveRange(likes);
+
+        
+            var comments = await _db.Comments
+                .Where(c => c.PostId == id)
+                .ToListAsync();
+
+            _db.Comments.RemoveRange(comments);
+
+           
+            var notifications = await _db.Notifications
+                .Where(n => n.PostId == id)
+                .ToListAsync();
+
+            _db.Notifications.RemoveRange(notifications);
+
+          
+            _db.UserPosts.Remove(post);
+
+            await _db.SaveChangesAsync();
+
+            TempData["success"] = "Post deleted successfully.";
+
+            return RedirectToAction("Posts");
+        }
+
+        //comments 
+        public async Task<IActionResult> Comments(string term)
+        {
+            var query = _db.Comments
+                .Include(c => c.User)
+                .Include(c => c.Post)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                query = query.Where(c =>
+                    c.Text.Contains(term) ||
+                    c.User.FullName.Contains(term) ||
+                    c.Post.Caption.Contains(term));
+            }
+
+            var comments = await query
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new AdminCommentVM
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    CreatedAt = c.CreatedAt,
+
+                    AuthorId = c.UserId,
+                    AuthorName = c.User.FullName,
+                    AuthorImage = c.User.ProfileImage,
+
+                    PostId = c.PostId,
+                    PostCaption = c.Post.Caption
+                })
+                .ToListAsync();
+
+            ViewBag.SearchTerm = term;
+
+            return View(comments);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _db.Comments.FindAsync(id);
+
+            if (comment == null)
+            {
+                TempData["error"] = "Comment not found.";
+                return RedirectToAction(nameof(Comments));
+            }
+
+            _db.Comments.Remove(comment);
+
+            await _db.SaveChangesAsync();
+
+            TempData["success"] = "Comment deleted successfully.";
+
+            return RedirectToAction(nameof(Comments));
+        }
+
+        //follow 
+        public async Task<IActionResult> Follows()
+        {
+            // Total follow relationships
+            var totalFollows = await _db.Follows.CountAsync();
+
+            // Total users
+            var totalUsers = await _db.Users.CountAsync();
+
+            // Most followed users
+            var mostFollowedUsers = await _db.Users
+                .Select(u => new AdminFollowUserVM
+                {
+                    UserId = u.Id,
+                    FullName = u.FullName,
+                    ProfileImage = u.ProfileImage,
+
+                    FollowerCount = _db.Follows
+                        .Count(f => f.FollowingId == u.Id),
+
+                    FollowingCount = _db.Follows
+                        .Count(f => f.FollowerId == u.Id)
+                })
+                .OrderByDescending(u => u.FollowerCount)
+                .Take(10)
+                .ToListAsync();
+
+            // All follow relationships
+            var relationships = await _db.Follows
+                .Include(f => f.Follower)
+                .Include(f => f.Following)
+                .OrderByDescending(f => f.Id)
+                .Select(f => new AdminFollowVM
+                {
+                    Id = f.Id,
+
+                    FollowerId = f.FollowerId,
+                    FollowerName = f.Follower.FullName,
+                    FollowerImage = f.Follower.ProfileImage,
+
+                    FollowingId = f.FollowingId,
+                    FollowingName = f.Following.FullName,
+                    FollowingImage = f.Following.ProfileImage
+                })
+                .ToListAsync();
+
+            var vm = new AdminFollowOverviewVM
+            {
+                TotalFollows = totalFollows,
+                TotalUsers = totalUsers,
+                MostFollowedUsers = mostFollowedUsers,
+                Relationships = relationships
+            };
+
+            return View(vm);
+        }
     }
 }
