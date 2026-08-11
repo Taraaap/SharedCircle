@@ -41,7 +41,7 @@ namespace SharedCircle.Controllers
                 NewFollowsToday = 0
             };
 
-            // ===== Weekly activity =====
+            
             var weekly = new List<DailyActivityVM>();
 
             for (int i = 6; i >= 0; i--)
@@ -60,7 +60,7 @@ namespace SharedCircle.Controllers
 
             vm.WeeklyActivity = weekly;
 
-            // ===== Top liked posts =====
+           
             vm.TopLikedPosts = await _db.UserPosts
                 .Include(p => p.User)
                 .Select(p => new TopPostVM
@@ -75,7 +75,7 @@ namespace SharedCircle.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            // ===== Top active users (posts + comments) =====
+           
             var userActivity = await _db.Users
                 .Select(u => new TopUserVM
                 {
@@ -90,7 +90,6 @@ namespace SharedCircle.Controllers
 
             vm.TopActiveUsers = userActivity;
 
-            // ===== Most followed users =====
             vm.MostFollowedUsers = await _db.Users
                 .Select(u => new TopUserVM
                 {
@@ -103,7 +102,7 @@ namespace SharedCircle.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            // ===== Recent signups =====
+           
             vm.RecentSignups = await _db.Users
                 .OrderByDescending(u => u.JoinDate)
                 .Take(5)
@@ -116,7 +115,7 @@ namespace SharedCircle.Controllers
                 })
                 .ToListAsync();
 
-            // ===== Recent activity feed (posts) =====
+           
             vm.RecentPosts = await _db.UserPosts
                 .Include(p => p.User)
                 .OrderByDescending(p => p.CreatedAt)
@@ -131,7 +130,6 @@ namespace SharedCircle.Controllers
                 })
                 .ToListAsync();
 
-            // ===== Month-over-month comparison =====
             int usersThisMonth = await _db.Users.CountAsync(u => u.JoinDate >= startOfThisMonth);
             int usersLastMonth = await _db.Users.CountAsync(u => u.JoinDate >= startOfLastMonth && u.JoinDate < startOfThisMonth);
 
@@ -154,7 +152,7 @@ namespace SharedCircle.Controllers
         new MonthComparisonVM { Metric = "Comments", ThisMonth = commentsThisMonth, LastMonth = commentsLastMonth, PercentChange = PercentChange(commentsThisMonth, commentsLastMonth) }
     };
 
-            // ===== Moderation snapshot =====
+          
             var allUsers = await _userManager.Users.ToListAsync();
             int lockedCount = 0;
 

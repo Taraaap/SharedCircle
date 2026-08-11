@@ -14,21 +14,18 @@
 
         public List<DailyActivityVM> WeeklyActivity { get; set; } = new();
 
-        // Top Performers
+        
         public List<TopPostVM> TopLikedPosts { get; set; } = new();
         public List<TopUserVM> TopActiveUsers { get; set; } = new();
         public List<TopUserVM> MostFollowedUsers { get; set; } = new();
 
-        // Recent Signups
+        
         public List<RecentSignupVM> RecentSignups { get; set; } = new();
 
-        // Recent Activity Feed
         public List<RecentPostVM> RecentPosts { get; set; } = new();
 
-        // Month-over-Month
         public List<MonthComparisonVM> MonthComparisons { get; set; } = new();
 
-        // Moderation Snapshot
         public int LockedUsersCount { get; set; }
     }
 
