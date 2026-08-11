@@ -25,63 +25,146 @@ namespace SharedCircle.Controllers
         public async Task<IActionResult> Dashboard()
         {
             var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
-
-            
-            var startDate = today.AddDays(-6);
+            var startOfThisMonth = new DateTime(today.Year, today.Month, 1);
+            var startOfLastMonth = startOfThisMonth.AddMonths(-1);
 
             var vm = new AdminDashboardVM
             {
-                
                 TotalUsers = await _db.Users.CountAsync(),
                 TotalPosts = await _db.UserPosts.CountAsync(),
                 TotalComments = await _db.Comments.CountAsync(),
                 TotalFollows = await _db.Follows.CountAsync(),
 
-                
-                NewUsersToday = await _db.Users
-                    .CountAsync(u => u.JoinDate >= today && u.JoinDate < tomorrow),
-
-                NewPostsToday = await _db.UserPosts
-                    .CountAsync(p => p.CreatedAt >= today && p.CreatedAt < tomorrow),
-
-                NewCommentsToday = await _db.Comments
-                    .CountAsync(c => c.CreatedAt >= today && c.CreatedAt < tomorrow),
-
-                NewFollowsToday = await _db.Follows
-                    .CountAsync(f => f.FollowedAt >= today && f.FollowedAt < tomorrow)
+                NewUsersToday = await _db.Users.CountAsync(u => u.JoinDate.Date == today),
+                NewPostsToday = await _db.UserPosts.CountAsync(p => p.CreatedAt.Date == today),
+                NewCommentsToday = await _db.Comments.CountAsync(c => c.CreatedAt.Date == today),
+                NewFollowsToday = 0
             };
 
-          
-            for (var date = startDate; date <= today; date = date.AddDays(1))
+            // ===== Weekly activity =====
+            var weekly = new List<DailyActivityVM>();
+
+            for (int i = 6; i >= 0; i--)
             {
-                var nextDate = date.AddDays(1);
+                var day = today.AddDays(-i);
 
-                vm.WeeklyActivity.Add(new DailyActivityVM
+                weekly.Add(new DailyActivityVM
                 {
-                    Date = date,
-
-                    Users = await _db.Users
-                        .CountAsync(u =>
-                            u.JoinDate >= date &&
-                            u.JoinDate < nextDate),
-
-                    Posts = await _db.UserPosts
-                        .CountAsync(p =>
-                            p.CreatedAt >= date &&
-                            p.CreatedAt < nextDate),
-
-                    Comments = await _db.Comments
-                        .CountAsync(c =>
-                            c.CreatedAt >= date &&
-                            c.CreatedAt < nextDate),
-
-                    Follows = await _db.Follows
-                        .CountAsync(f =>
-                            f.FollowedAt >= date &&
-                            f.FollowedAt < nextDate)
+                    Date = day,
+                    Users = await _db.Users.CountAsync(u => u.JoinDate.Date == day),
+                    Posts = await _db.UserPosts.CountAsync(p => p.CreatedAt.Date == day),
+                    Comments = await _db.Comments.CountAsync(c => c.CreatedAt.Date == day),
+                    Follows = 0
                 });
             }
+
+            vm.WeeklyActivity = weekly;
+
+            // ===== Top liked posts =====
+            vm.TopLikedPosts = await _db.UserPosts
+                .Include(p => p.User)
+                .Select(p => new TopPostVM
+                {
+                    Id = p.Id,
+                    Caption = p.Caption,
+                    AuthorName = p.User.FullName,
+                    AuthorImage = p.User.ProfileImage,
+                    LikeCount = _db.Likes.Count(l => l.PostId == p.Id)
+                })
+                .OrderByDescending(p => p.LikeCount)
+                .Take(5)
+                .ToListAsync();
+
+            // ===== Top active users (posts + comments) =====
+            var userActivity = await _db.Users
+                .Select(u => new TopUserVM
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    ProfileImage = u.ProfileImage,
+                    Count = _db.UserPosts.Count(p => p.UserId == u.Id) + _db.Comments.Count(c => c.UserId == u.Id)
+                })
+                .OrderByDescending(u => u.Count)
+                .Take(5)
+                .ToListAsync();
+
+            vm.TopActiveUsers = userActivity;
+
+            // ===== Most followed users =====
+            vm.MostFollowedUsers = await _db.Users
+                .Select(u => new TopUserVM
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    ProfileImage = u.ProfileImage,
+                    Count = _db.Follows.Count(f => f.FollowingId == u.Id)
+                })
+                .OrderByDescending(u => u.Count)
+                .Take(5)
+                .ToListAsync();
+
+            // ===== Recent signups =====
+            vm.RecentSignups = await _db.Users
+                .OrderByDescending(u => u.JoinDate)
+                .Take(5)
+                .Select(u => new RecentSignupVM
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    ProfileImage = u.ProfileImage,
+                    JoinDate = u.JoinDate
+                })
+                .ToListAsync();
+
+            // ===== Recent activity feed (posts) =====
+            vm.RecentPosts = await _db.UserPosts
+                .Include(p => p.User)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(5)
+                .Select(p => new RecentPostVM
+                {
+                    Id = p.Id,
+                    Caption = p.Caption,
+                    AuthorName = p.User.FullName,
+                    AuthorImage = p.User.ProfileImage,
+                    CreatedAt = p.CreatedAt
+                })
+                .ToListAsync();
+
+            // ===== Month-over-month comparison =====
+            int usersThisMonth = await _db.Users.CountAsync(u => u.JoinDate >= startOfThisMonth);
+            int usersLastMonth = await _db.Users.CountAsync(u => u.JoinDate >= startOfLastMonth && u.JoinDate < startOfThisMonth);
+
+            int postsThisMonth = await _db.UserPosts.CountAsync(p => p.CreatedAt >= startOfThisMonth);
+            int postsLastMonth = await _db.UserPosts.CountAsync(p => p.CreatedAt >= startOfLastMonth && p.CreatedAt < startOfThisMonth);
+
+            int commentsThisMonth = await _db.Comments.CountAsync(c => c.CreatedAt >= startOfThisMonth);
+            int commentsLastMonth = await _db.Comments.CountAsync(c => c.CreatedAt >= startOfLastMonth && c.CreatedAt < startOfThisMonth);
+
+            double PercentChange(int current, int previous)
+            {
+                if (previous == 0) return current > 0 ? 100 : 0;
+                return Math.Round(((double)(current - previous) / previous) * 100, 1);
+            }
+
+            vm.MonthComparisons = new List<MonthComparisonVM>
+    {
+        new MonthComparisonVM { Metric = "Users", ThisMonth = usersThisMonth, LastMonth = usersLastMonth, PercentChange = PercentChange(usersThisMonth, usersLastMonth) },
+        new MonthComparisonVM { Metric = "Posts", ThisMonth = postsThisMonth, LastMonth = postsLastMonth, PercentChange = PercentChange(postsThisMonth, postsLastMonth) },
+        new MonthComparisonVM { Metric = "Comments", ThisMonth = commentsThisMonth, LastMonth = commentsLastMonth, PercentChange = PercentChange(commentsThisMonth, commentsLastMonth) }
+    };
+
+            // ===== Moderation snapshot =====
+            var allUsers = await _userManager.Users.ToListAsync();
+            int lockedCount = 0;
+
+            foreach (var u in allUsers)
+            {
+                if (await _userManager.IsLockedOutAsync(u))
+                    lockedCount++;
+            }
+
+            vm.LockedUsersCount = lockedCount;
 
             return View(vm);
         }
