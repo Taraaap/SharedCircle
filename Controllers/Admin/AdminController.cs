@@ -24,19 +24,70 @@ namespace SharedCircle.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            
+            var startDate = today.AddDays(-6);
+
             var vm = new AdminDashboardVM
             {
+                
                 TotalUsers = await _db.Users.CountAsync(),
                 TotalPosts = await _db.UserPosts.CountAsync(),
                 TotalComments = await _db.Comments.CountAsync(),
-                TotalFollows = await _db.Follows.CountAsync()
+                TotalFollows = await _db.Follows.CountAsync(),
+
+                
+                NewUsersToday = await _db.Users
+                    .CountAsync(u => u.JoinDate >= today && u.JoinDate < tomorrow),
+
+                NewPostsToday = await _db.UserPosts
+                    .CountAsync(p => p.CreatedAt >= today && p.CreatedAt < tomorrow),
+
+                NewCommentsToday = await _db.Comments
+                    .CountAsync(c => c.CreatedAt >= today && c.CreatedAt < tomorrow),
+
+                NewFollowsToday = await _db.Follows
+                    .CountAsync(f => f.FollowedAt >= today && f.FollowedAt < tomorrow)
             };
+
+          
+            for (var date = startDate; date <= today; date = date.AddDays(1))
+            {
+                var nextDate = date.AddDays(1);
+
+                vm.WeeklyActivity.Add(new DailyActivityVM
+                {
+                    Date = date,
+
+                    Users = await _db.Users
+                        .CountAsync(u =>
+                            u.JoinDate >= date &&
+                            u.JoinDate < nextDate),
+
+                    Posts = await _db.UserPosts
+                        .CountAsync(p =>
+                            p.CreatedAt >= date &&
+                            p.CreatedAt < nextDate),
+
+                    Comments = await _db.Comments
+                        .CountAsync(c =>
+                            c.CreatedAt >= date &&
+                            c.CreatedAt < nextDate),
+
+                    Follows = await _db.Follows
+                        .CountAsync(f =>
+                            f.FollowedAt >= date &&
+                            f.FollowedAt < nextDate)
+                });
+            }
 
             return View(vm);
         }
 
 
-    //user
+        //user
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users
